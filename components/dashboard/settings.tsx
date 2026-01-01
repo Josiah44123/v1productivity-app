@@ -32,7 +32,7 @@ export function SettingsPage() {
       <Card className="border-2 border-blue-500/30 glow-card">
         <CardHeader>
           <CardTitle>Appearance</CardTitle>
-          <CardDescription>Customize how your dashboard looks</CardDescription>
+          <CardDescription>Customize how your dashboard looks (di pa nagana) </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex items-center justify-between">
