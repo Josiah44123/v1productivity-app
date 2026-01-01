@@ -25,7 +25,7 @@ export function ProfileHeader({ darkMode, setDarkMode, activeTab }: ProfileHeade
               </div>
               <div>
                 <h2 className="font-semibold text-sm">Josiah Rosell</h2>
-                <p className="text-xs text-muted-foreground">2025 Semester</p>
+                <p className="text-xs text-muted-foreground">2nd Year '25-'26</p>
               </div>
             </div>
 
