@@ -84,15 +84,15 @@ export function DashboardHome({ tasks = [], events = [], notes = [] }: HomeProps
       
       {/* GRID BACKGROUND */}
       <div 
-        className="absolute inset-0 pointer-events-none -z-10"
+        className="fixed inset-0 pointer-events-none -z-10"
         style={{
           backgroundImage: `linear-gradient(to right, rgba(255,255,255,0.05) 1px, transparent 1px), 
                             linear-gradient(to bottom, rgba(255,255,255,0.05) 1px, transparent 1px)`,
           backgroundSize: "50px 50px",
-          maskImage: "linear-gradient(to bottom, black 40%, transparent 100%)"
+          /* maskImage line removed so it doesn't fade out */
         }}
       />
-
+      
       {/* Header */}
       <div>
         <h1 className="text-3xl font-bold text-white tracking-tight">
