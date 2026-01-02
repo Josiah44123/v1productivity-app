@@ -7,9 +7,8 @@ import { ExternalLink, Plus, Trash2 } from "lucide-react"
 import { useState } from "react"
 import { useLocalStorage } from "@/hooks/use-local-storage"
 
-// Here's the fix for the red lines:
-// We add the '?' to make icon optional. Now TS won't yell at us
-// about the default links missing an icon property.
+// Now TS won't yell at us
+
 interface Link {
   id: string
   title: string
