@@ -12,7 +12,7 @@ interface Link {
   title: string
   url: string
   category: string
-  icon?: string
+  icon: string
   image?: string
 }
 
@@ -181,7 +181,7 @@ export function LinksHub() {
               <label className="text-xs text-blue-300/70 mb-2 block">Icon</label>
               <Input
                 placeholder="😀"
-                maxLength="2"
+                maxLength={2}
                 value={newIcon}
                 onChange={(e) => setNewIcon(e.target.value)}
                 className="bg-input border-blue-500/40 text-center text-lg"
