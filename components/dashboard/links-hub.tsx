@@ -44,14 +44,14 @@ const DEFAULT_LINKS = [
   {
     id: "4",
     title: "LinkedIn",
-    url: "https://linkedin.com",
+    url: "https://www.linkedin.com/in/josiahlamuelrosell/",
     category: "Professional",
     icon: "💼",
   },
   {
     id: "5",
     title: "GitHub",
-    url: "https://github.com",
+    url: "https://github.com/Josiah44123",
     category: "Professional",
     icon: "🔧",
   },
