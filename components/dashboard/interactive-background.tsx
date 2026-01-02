@@ -1,19 +1,23 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useRef } from "react"
 
 interface InteractiveBackgroundProps {
   darkMode: boolean
 }
 
 export function InteractiveBackground({ darkMode }: InteractiveBackgroundProps) {
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
-  const [glowPosition, setGlowPosition] = useState({ x: 0, y: 0 })
+  const cursorRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
-      setMousePosition({ x: e.clientX, y: e.clientY })
-      setGlowPosition({ x: e.clientX, y: e.clientY })
+      if (cursorRef.current) {
+        // FAST: Moves the glow instantly without React re-renders
+        const x = e.clientX
+        const y = e.clientY
+        // Center the 600px circle (subtract 300px)
+        cursorRef.current.style.transform = `translate3d(${x - 300}px, ${y - 300}px, 0)`
+      }
     }
 
     window.addEventListener("mousemove", handleMouseMove)
@@ -21,68 +25,29 @@ export function InteractiveBackground({ darkMode }: InteractiveBackgroundProps) 
   }, [])
 
   return (
-    <div className={`interactive-background ${!darkMode ? "light-mode" : ""}`}>
-      <div className="absolute inset-0 bg-gradient-to-br from-slate-950 via-blue-900 to-purple-900 dark:from-slate-950 dark:via-blue-900 dark:to-purple-900 light-mode:from-slate-50 light-mode:via-blue-100 light-mode:to-purple-100" />
+    <div className="fixed inset-0 pointer-events-none -z-10 overflow-hidden bg-[#020617]">
+      {/* 1. Base Dark Background (Reduced Opacity to 30%) */}
+      <div className="absolute inset-0 bg-gradient-to-br from-[#020617] via-[#0f172a] to-[#1e1b4b] opacity-30" />
 
-      <div className="absolute inset-0 opacity-30">
-        <svg className="w-full h-full" preserveAspectRatio="xMidYMid slice">
-          <defs>
-            <linearGradient id="mesh1" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="#3b82f6" stopOpacity="0.1" />
-              <stop offset="100%" stopColor="#a78bfa" stopOpacity="0.1" />
-            </linearGradient>
-            <linearGradient id="mesh2" x1="100%" y1="0%" x2="0%" y2="100%">
-              <stop offset="0%" stopColor="#6366f1" stopOpacity="0.1" />
-              <stop offset="100%" stopColor="#8b5cf6" stopOpacity="0.1" />
-            </linearGradient>
-          </defs>
-          <rect width="100%" height="100%" fill="url(#mesh1)" />
-          <rect width="100%" height="100%" fill="url(#mesh2)" opacity="0.5" />
-        </svg>
-      </div>
-
-      <div
-        className="bg-orb orb-blue-new"
+      {/* 2. The Grid (Fixed to cover whole screen) */}
+      <div 
+        className="fixed inset-0 opacity-20"
         style={{
-          transform: `translate(${mousePosition.x * 0.02}px, ${mousePosition.y * 0.02}px)`,
-        }}
-      />
-      <div
-        className="bg-orb orb-purple-new"
-        style={{
-          transform: `translate(${mousePosition.x * -0.015}px, ${mousePosition.y * -0.015}px)`,
-        }}
-      />
-      <div
-        className="bg-orb orb-indigo-new"
-        style={{
-          transform: `translate(${mousePosition.x * 0.025}px, ${mousePosition.y * 0.025}px)`,
+          backgroundImage: `linear-gradient(#334155 1px, transparent 1px), linear-gradient(to right, #334155 1px, transparent 1px)`,
+          backgroundSize: '40px 40px',
         }}
       />
 
-      <div className="absolute inset-0 bg-gradient-to-br from-blue-600/5 via-purple-600/5 to-blue-600/5 pointer-events-none dark:from-blue-600/8 dark:via-purple-600/8 dark:to-blue-600/8" />
-
+      {/* 3. The GLOW - 600px wide, Screen Blend Mode for brightness */}
       <div
-        className="pointer-events-none fixed w-32 h-32 rounded-full"
+        ref={cursorRef}
+        className="absolute top-0 left-0 w-[600px] h-[600px] rounded-full will-change-transform"
         style={{
-          left: glowPosition.x - 64,
-          top: glowPosition.y - 64,
-          background:
-            "radial-gradient(circle, rgba(59, 130, 246, 0.12) 0%, rgba(139, 92, 246, 0.06) 50%, transparent 100%)",
-          boxShadow: "0 0 40px rgba(59, 130, 246, 0.15), inset 0 0 40px rgba(139, 92, 246, 0.08)",
-          filter: "blur(20px)",
-          transition: "all 0.1s ease-out",
+          background: "radial-gradient(circle, rgba(59, 130, 246, 0.4) 0%, rgba(139, 92, 246, 0.15) 40%, transparent 70%)",
+          filter: "blur(60px)",
+          mixBlendMode: "screen",
         }}
       />
-
-      <svg className="absolute inset-0 w-full h-full opacity-5 dark:opacity-10" preserveAspectRatio="none">
-        <defs>
-          <pattern id="grid" width="50" height="50" patternUnits="userSpaceOnUse">
-            <path d="M 50 0 L 0 0 0 50" fill="none" stroke="currentColor" strokeWidth="0.5" />
-          </pattern>
-        </defs>
-        <rect width="100%" height="100%" fill="url(#grid)" />
-      </svg>
     </div>
   )
 }
