@@ -41,8 +41,10 @@ export function DashboardLayout({ children, activeTab, setActiveTab }: Dashboard
   if (!mounted) return null
 
   return (
-    <div className="min-h-screen bg-background text-foreground dark relative flex flex-col overflow-hidden">
-      <InteractiveBackground />
+    <div
+      className={`min-h-screen bg-background text-foreground relative flex flex-col overflow-hidden ${darkMode ? "dark" : ""}`}
+    >
+      <InteractiveBackground darkMode={darkMode} />
 
       <ProfileHeader darkMode={darkMode} setDarkMode={setDarkMode} activeTab={activeTab} />
 

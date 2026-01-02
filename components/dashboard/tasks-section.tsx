@@ -42,7 +42,7 @@ export function TasksSection({ tasks = [], setTasks }: TasksSectionProps) {
     const task: Task = {
       id: Date.now().toString(),
       title: newTask,
-      subject: selectedSubject === "All" ? "General" : selectedSubject,
+      subject: newCategory.replace(/-/g, " ").replace(/\b\w/g, (l) => l.toUpperCase()),
       dueDate: new Date().toISOString(),
       priority: "medium",
       urgency: newUrgency,
@@ -136,15 +136,15 @@ export function TasksSection({ tasks = [], setTasks }: TasksSectionProps) {
   return (
     <div className="space-y-6 animate-in fade-in duration-500">
       <div>
-        <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-400 via-purple-400 to-orange-400 bg-clip-text text-transparent">
+        <h1 className="text-3xl font-bold bg-gradient-to-r from-orange-400 via-pink-400 to-orange-500 bg-clip-text text-transparent">
           Tasks & To-Do
         </h1>
-        <p className="text-muted-foreground mt-2">Manage your tasks with urgency levels and categories</p>
+        <p className="text-orange-300/70 mt-2">Manage your tasks with urgency levels and categories</p>
       </div>
 
       <Card className="border-2 border-orange-500/30 glow-card">
         <CardHeader>
-          <CardTitle>Add New Task</CardTitle>
+          <CardTitle className="text-orange-300">Add New Task</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <Input
@@ -157,19 +157,7 @@ export function TasksSection({ tasks = [], setTasks }: TasksSectionProps) {
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="text-xs text-muted-foreground mb-2 block">Urgency</label>
-              <select
-                value={newUrgency}
-                onChange={(e) => setNewUrgency(e.target.value as any)}
-                className="w-full px-3 py-2 rounded-md bg-input border border-border/40 text-sm outline-none"
-              >
-                <option value="minor">Minor</option>
-                <option value="moderate">Moderate</option>
-                <option value="critical">Critical</option>
-              </select>
-            </div>
-            <div>
-              <label className="text-xs text-muted-foreground mb-2 block">Category</label>
+              <label className="text-xs text-orange-300/70 mb-2 block">Category</label>
               <select
                 value={newCategory}
                 onChange={(e) => setNewCategory(e.target.value as any)}
@@ -182,11 +170,23 @@ export function TasksSection({ tasks = [], setTasks }: TasksSectionProps) {
                 <option value="organization">Organization</option>
               </select>
             </div>
+            <div>
+              <label className="text-xs text-orange-300/70 mb-2 block">Priority</label>
+              <select
+                value={newUrgency}
+                onChange={(e) => setNewUrgency(e.target.value as any)}
+                className="w-full px-3 py-2 rounded-md bg-input border border-border/40 text-sm outline-none"
+              >
+                <option value="minor">Minor</option>
+                <option value="moderate">Moderate</option>
+                <option value="critical">Critical</option>
+              </select>
+            </div>
           </div>
 
           <Button
             onClick={addTask}
-            className="w-full gap-2 transition-all active:scale-95 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600"
+            className="w-full gap-2 transition-all active:scale-95 bg-gradient-to-r from-orange-500 to-pink-500 hover:from-orange-600 hover:to-pink-600"
           >
             <Plus className="w-4 h-4" />
             Add Task
@@ -219,7 +219,7 @@ export function TasksSection({ tasks = [], setTasks }: TasksSectionProps) {
           filteredTasks.map((task) => (
             <Card
               key={task.id}
-              className="glow-card hover:glow-purple transition-all group border-2 border-transparent hover:border-purple-500/30 animate-in fade-in duration-300"
+              className="glow-card hover:glow-orange transition-all group border-2 border-transparent hover:border-orange-500/30 animate-in fade-in duration-300"
             >
               <CardContent className="pt-6">
                 <div className="flex items-start gap-3">
@@ -249,7 +249,7 @@ export function TasksSection({ tasks = [], setTasks }: TasksSectionProps) {
                           {task.title}
                         </p>
                         <div className="flex flex-wrap gap-2 mt-2">
-                          <span className="text-xs bg-secondary/50 px-2 py-1 rounded border border-border/40">
+                          <span className="text-xs bg-orange-500/10 px-2 py-1 rounded border border-orange-500/40 text-orange-300">
                             {task.subject}
                           </span>
                           <span
@@ -257,12 +257,10 @@ export function TasksSection({ tasks = [], setTasks }: TasksSectionProps) {
                           >
                             {task.urgency ? task.urgency.charAt(0).toUpperCase() + task.urgency.slice(1) : "Unknown"}
                           </span>
-                          <span className="text-xs bg-primary/10 px-2 py-1 rounded border border-primary/30 text-primary">
+                          <span className="text-xs bg-orange-500/10 px-2 py-1 rounded border border-orange-500/40 text-orange-300">
                             {getCategoryLabel(task.category)}
                           </span>
-                          <span className="text-xs text-muted-foreground">
-                            {format(new Date(task.dueDate), "MMM d")}
-                          </span>
+                          <span className="text-xs text-orange-300/70">{format(new Date(task.dueDate), "MMM d")}</span>
                         </div>
                       </div>
                     </div>
@@ -331,9 +329,9 @@ export function TasksSection({ tasks = [], setTasks }: TasksSectionProps) {
                               })
                               setTasks(updatedTasks)
                             }}
-                            className={`p-1 rounded ${subtask.completed ? "bg-primary/20" : "border border-border/40"}`}
+                            className={`p-1 rounded ${subtask.completed ? "bg-green-500/20" : "border border-border/40"}`}
                           >
-                            {subtask.completed && <Check className="w-3 h-3 text-primary" />}
+                            {subtask.completed && <Check className="w-3 h-3 text-green-500" />}
                           </button>
                           <span
                             className={subtask.completed ? "line-through text-muted-foreground text-sm" : "text-sm"}
