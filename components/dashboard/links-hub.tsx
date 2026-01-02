@@ -12,8 +12,6 @@ interface Link {
   title: string
   url: string
   category: string
-  icon: string
-  image?: string
 }
 
 const DEFAULT_LINKS = [
@@ -23,21 +21,18 @@ const DEFAULT_LINKS = [
     title: "Canvas LMS",
     url: "https://dlsl.instructure.com",
     category: "Educational",
-    icon: "📚",
   },
   {
     id: "2",
     title: "Google Docs",
     url: "https://docs.google.com",
     category: "Educational",
-    icon: "📄",
   },
   {
     id: "3",
     title: "YouTube",
     url: "https://youtube.com",
     category: "Educational",
-    icon: "▶️",
   },
 
   // Social & Professional
@@ -46,14 +41,12 @@ const DEFAULT_LINKS = [
     title: "LinkedIn",
     url: "https://www.linkedin.com/in/josiahlamuelrosell/",
     category: "Professional",
-    icon: "💼",
   },
   {
     id: "5",
     title: "GitHub",
     url: "https://github.com/Josiah44123",
     category: "Professional",
-    icon: "🔧",
   },
 
   // AI Tools
@@ -62,35 +55,30 @@ const DEFAULT_LINKS = [
     title: "ChatGPT",
     url: "https://chatgpt.com",
     category: "AI Tools",
-    icon: "🤖",
   },
   {
     id: "7",
     title: "Google Gemini",
     url: "https://gemini.google.com",
     category: "AI Tools",
-    icon: "✨",
   },
   {
     id: "8",
     title: "Grok (xAI)",
     url: "https://x.com/i/grok",
     category: "AI Tools",
-    icon: "⚡",
   },
   {
     id: "9",
     title: "DeepSeek",
     url: "https://deepseek.com",
     category: "AI Tools",
-    icon: "🔍",
   },
   {
     id: "10",
     title: "Claude",
     url: "https://claude.ai",
     category: "AI Tools",
-    icon: "🧠",
   },
 
   // Portfolio & Certs
@@ -99,16 +87,14 @@ const DEFAULT_LINKS = [
     title: "My Portfolio",
     url: "https://josiahrosell.vercel.app",
     category: "Portfolio",
-    icon: "🎨",
   },
 ]
 
 export function LinksHub() {
-  const [links, setLinks] = useLocalStorage("quick-links", DEFAULT_LINKS)
+  const [links, setLinks] = useLocalStorage<Link[]>("quick-links", DEFAULT_LINKS)
   const [newTitle, setNewTitle] = useState("")
   const [newUrl, setNewUrl] = useState("")
   const [newCategory, setNewCategory] = useState("AI Tools")
-  const [newIcon, setNewIcon] = useState("🔗")
 
   const categories = Array.from(new Set(links.map((l) => l.category)))
 
@@ -132,21 +118,35 @@ export function LinksHub() {
 
   const addLink = () => {
     if (!newTitle.trim() || !newUrl.trim()) return
+    // Ensure URL starts with http/https for proper domain extraction
+    const formattedUrl = newUrl.startsWith("http") ? newUrl : `https://${newUrl}`
+
     const link: Link = {
       id: Date.now().toString(),
       title: newTitle,
-      url: newUrl.startsWith("http") ? newUrl : `https://${newUrl}`,
+      url: formattedUrl,
       category: newCategory,
-      icon: newIcon,
     }
     setLinks([...links, link])
     setNewTitle("")
     setNewUrl("")
-    setNewIcon("🔗")
   }
 
   const deleteLink = (id: string) => {
     setLinks(links.filter((l) => l.id !== id))
+  }
+
+  // Helper to fetch the favicon using unavatar.io for better quality/transparency
+  const getFaviconUrl = (url: string) => {
+    try {
+      const domain = new URL(url).hostname
+      // Use unavatar.io as primary, fallback to Google's service if unavatar fails
+      const googleFallback = `https://www.google.com/s2/favicons?sz=64&domain=${domain}`;
+      return `https://unavatar.io/${domain}?fallback=${encodeURIComponent(googleFallback)}`;
+    } catch (e) {
+      // Generic fallback if URL parsing fails completely
+      return `https://unavatar.io/google.com` 
+    }
   }
 
   return (
@@ -176,32 +176,21 @@ export function LinksHub() {
             onKeyPress={(e) => e.key === "Enter" && addLink()}
             className="bg-input border-blue-500/40"
           />
-          <div className="grid grid-cols-3 gap-3">
-            <div>
-              <label className="text-xs text-blue-300/70 mb-2 block">Icon</label>
-              <Input
-                placeholder="😀"
-                maxLength={2}
-                value={newIcon}
-                onChange={(e) => setNewIcon(e.target.value)}
-                className="bg-input border-blue-500/40 text-center text-lg"
-              />
-            </div>
-            <div className="col-span-2">
-              <label className="text-xs text-blue-300/70 mb-2 block">Category</label>
-              <select
-                value={newCategory}
-                onChange={(e) => setNewCategory(e.target.value)}
-                className="w-full px-3 py-2 border border-blue-500/40 rounded-md outline-none text-sm bg-input"
-              >
-                <option>AI Tools</option>
-                <option>Educational</option>
-                <option>Professional</option>
-                <option>Portfolio</option>
-                <option>Certifications</option>
-                <option>Other</option>
-              </select>
-            </div>
+          
+          <div className="w-full">
+            <label className="text-xs text-blue-300/70 mb-2 block">Category</label>
+            <select
+              value={newCategory}
+              onChange={(e) => setNewCategory(e.target.value)}
+              className="w-full px-3 py-2 border border-blue-500/40 rounded-md outline-none text-sm bg-input"
+            >
+              <option>AI Tools</option>
+              <option>Educational</option>
+              <option>Professional</option>
+              <option>Portfolio</option>
+              <option>Certifications</option>
+              <option>Other</option>
+            </select>
           </div>
 
           <Button
@@ -232,7 +221,21 @@ export function LinksHub() {
                   >
                     <CardContent className="p-4">
                       <div className="flex flex-col h-full">
-                        <div className="text-4xl mb-3">{link.icon}</div>
+                        
+                        {/* Auto-generated Favicon Display */}
+                        {/* Added 'p-1' and removed bg-white/10 so transparent icons sit cleanly */}
+                        <div className="mb-3 h-10 w-10 flex items-center justify-start p-1">
+                            <img 
+                                src={getFaviconUrl(link.url)} 
+                                alt={link.title} 
+                                className="w-full h-full object-contain"
+                                onError={(e) => {
+                                  // Hide image if it fails completely so we don't show a broken icon border
+                                  (e.target as HTMLImageElement).style.opacity = '0';
+                                }}
+                            />
+                        </div>
+
                         <h3 className="font-semibold text-sm line-clamp-2 flex-1">{link.title}</h3>
 
                         <div className="flex gap-1 mt-3 opacity-0 group-hover:opacity-100 transition-opacity">
