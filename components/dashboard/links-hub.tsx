@@ -21,7 +21,7 @@ const DEFAULT_LINKS = [
   {
     id: "1",
     title: "Canvas LMS",
-    url: "https://canvas.instructure.com",
+    url: "https://dlsl.instructure.com",
     category: "Educational",
     icon: "📚",
   },
