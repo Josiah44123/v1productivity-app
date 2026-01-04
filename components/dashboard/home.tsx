@@ -3,6 +3,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { format } from "date-fns"
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts"
+import { useLocalStorage } from "@/hooks/use-local-storage"
 
 interface HomeProps {
   tasks: any[]
@@ -30,6 +31,9 @@ const CustomTooltip = ({ active, payload }: any) => {
 }
 
 export function DashboardHome({ tasks = [], events = [], notes = [] }: HomeProps) {
+  // 1. CONNECT TO LOCAL STORAGE FOR DYNAMIC NAME
+  const [username] = useLocalStorage("user-name", "Josiah")
+
   // --- METRICS CALCULATIONS ---
   const completedTasks = tasks.filter((t: any) => t.completed).length
   const completionRate = tasks.length > 0 ? (completedTasks / tasks.length) * 100 : 0
@@ -88,7 +92,7 @@ export function DashboardHome({ tasks = [], events = [], notes = [] }: HomeProps
       {/* Header */}
       <div>
         <h1 className="text-3xl font-bold text-white tracking-tight">
-          {getGreeting()}, <span className="text-cyan-400">Josiah</span>
+          {getGreeting()}, <span className="text-cyan-400">{username}</span>
         </h1>
         <p className="text-slate-400 mt-1 font-mono text-sm">{format(new Date(), "EEEE, MMMM d, yyyy")}</p>
       </div>
