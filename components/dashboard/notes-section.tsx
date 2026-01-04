@@ -1,12 +1,16 @@
 "use client"
 
 import { useState } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Plus, Search, Star, Trash2, FolderPlus, ExternalLink } from "lucide-react"
+import { Textarea } from "@/components/ui/textarea"
+import { 
+  Plus, Search, Star, Trash2, FolderPlus, ExternalLink, 
+  BookOpen, Briefcase, Coffee 
+} from "lucide-react"
 import { format } from "date-fns"
 
+// --- Types ---
 interface Note {
   id: string
   title: string
@@ -32,17 +36,21 @@ interface NotesSectionProps {
 }
 
 export function NotesSection({ notes = [], setNotes }: NotesSectionProps) {
+  // State
   const [subjects, setSubjects] = useState<Subject[]>([])
   const [newSubjectName, setNewSubjectName] = useState("")
   const [newSubjectType, setNewSubjectType] = useState<"course" | "hobby" | "business">("course")
   const [newSubjectDocsLink, setNewSubjectDocsLink] = useState("")
-  const [newTitle, setNewTitle] = useState("")
-  const [newContent, setNewContent] = useState("")
+  
   const [selectedSubject, setSelectedSubject] = useState<Subject | null>(null)
   const [selectedNote, setSelectedNote] = useState<Note | null>(null)
   const [searchTerm, setSearchTerm] = useState("")
-  const [filterType, setFilterType] = useState<"all" | "course" | "hobby" | "business">("all")
+  
+  // Create Note State (temporary, before saving)
+  const [isCreatingNote, setIsCreatingNote] = useState(false)
+  const [newNoteTitle, setNewNoteTitle] = useState("")
 
+  // --- Actions ---
   const addSubject = () => {
     if (!newSubjectName.trim()) return
     const subject: Subject = {
@@ -58,461 +66,267 @@ export function NotesSection({ notes = [], setNotes }: NotesSectionProps) {
   }
 
   const deleteSubject = (id: string) => {
-    setSubjects(subjects.filter((s) => s.id !== id))
-    setNotes(notes.filter((n) => n.subject !== id))
-    if (selectedSubject?.id === id) {
-      setSelectedSubject(null)
+    if(confirm("Delete this subject and all its notes?")) {
+        setSubjects(subjects.filter((s) => s.id !== id))
+        setNotes(notes.filter((n) => n.subject !== id))
+        if (selectedSubject?.id === id) setSelectedSubject(null)
     }
   }
 
-  const addNote = () => {
-    if (!newTitle.trim() || !newContent.trim() || !selectedSubject) return
+  const createNote = () => {
+    if (!newNoteTitle.trim() || !selectedSubject) return
     const note: Note = {
       id: Date.now().toString(),
-      title: newTitle,
+      title: newNoteTitle,
       subject: selectedSubject.id,
-      content: newContent,
+      content: "",
       createdAt: new Date().toISOString(),
       starred: false,
       type: selectedSubject.type,
     }
-    setNotes([...notes, note])
-    setNewTitle("")
-    setNewContent("")
+    setNotes([note, ...notes])
+    setSelectedNote(note) // Immediately open it
+    setNewNoteTitle("")
+    setIsCreatingNote(false)
   }
 
   const deleteNote = (id: string) => {
     setNotes(notes.filter((n) => n.id !== id))
-    if (selectedNote?.id === id) {
-      setSelectedNote(null)
-    }
+    if (selectedNote?.id === id) setSelectedNote(null)
   }
 
   const toggleStar = (id: string) => {
     setNotes(notes.map((n) => (n.id === id ? { ...n, starred: !n.starred } : n)))
     if (selectedNote?.id === id) {
-      setSelectedNote({ ...selectedNote, starred: !selectedNote.starred })
+      setSelectedNote(prev => prev ? { ...prev, starred: !prev.starred } : null)
     }
   }
 
-  const updateNote = (id: string, updates: Partial<Note>) => {
-    setNotes(notes.map((n) => (n.id === id ? { ...n, ...updates } : n)))
-    if (selectedNote?.id === id) {
-      setSelectedNote({ ...selectedNote, ...updates })
-    }
+  const updateNoteContent = (id: string, content: string) => {
+    setNotes(notes.map((n) => (n.id === id ? { ...n, content } : n)))
+    if (selectedNote?.id === id) setSelectedNote(prev => prev ? { ...prev, content } : null)
+  }
+  
+  const updateNoteTitle = (id: string, title: string) => {
+    setNotes(notes.map((n) => (n.id === id ? { ...n, title } : n)))
+    if (selectedNote?.id === id) setSelectedNote(prev => prev ? { ...prev, title } : null)
   }
 
-  const getSubjectName = (subjectId: string) => {
-    return subjects.find((s) => s.id === subjectId)?.name || "Unknown"
-  }
-
-  const getSubjectDocsLink = (subjectId: string) => {
-    return subjects.find((s) => s.id === subjectId)?.docsLink
-  }
-
+  // --- Filtering ---
   const filteredNotes = notes.filter((note) => {
     const matchesSearch =
       note.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
       note.content.toLowerCase().includes(searchTerm.toLowerCase())
-    const matchesFilter = filterType === "all" || note.type === filterType
-    const matchesSubject = !selectedSubject || note.subject === selectedSubject.id
-    return matchesSearch && matchesFilter && matchesSubject
+    
+    const matchesSubject = selectedSubject ? note.subject === selectedSubject.id : true
+    
+    return matchesSearch && matchesSubject
   })
 
-  const starredNotes = filteredNotes.filter((n) => n.starred)
-  const regularNotes = filteredNotes.filter((n) => !n.starred)
-
-  const courseSubjects = subjects.filter((s) => s.type === "course")
-  const hobbySubjects = subjects.filter((s) => s.type === "hobby")
-  const businessSubjects = subjects.filter((s) => s.type === "business")
+  // --- Icons ---
+  const getSubjectIcon = (type: string) => {
+      switch(type) {
+          case 'course': return <BookOpen className="w-4 h-4 text-blue-400" />
+          case 'business': return <Briefcase className="w-4 h-4 text-purple-400" />
+          case 'hobby': return <Coffee className="w-4 h-4 text-emerald-400" />
+          default: return <FolderPlus className="w-4 h-4 text-orange-400" />
+      }
+  }
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-400 via-purple-400 to-orange-400 bg-clip-text text-transparent">
-          Notes & Subjects
-        </h1>
-        <p className="text-muted-foreground mt-2">Organize your notes by course, hobby, or business</p>
-      </div>
+    <div className="flex h-[800px] border border-white/10 rounded-xl overflow-hidden bg-background/50 backdrop-blur-sm shadow-2xl">
+      
+      {/* --- SIDEBAR (Subjects) --- */}
+      <div className="w-64 bg-secondary/10 border-r border-white/10 flex flex-col">
+        <div className="p-4 border-b border-white/5">
+            <h2 className="font-semibold text-lg tracking-tight mb-4">Library</h2>
+            {/* Quick Add Subject */}
+            <div className="space-y-2">
+                <Input 
+                    placeholder="New Folder..." 
+                    className="h-8 text-sm bg-secondary/30 border-none"
+                    value={newSubjectName}
+                    onChange={(e) => setNewSubjectName(e.target.value)}
+                    onKeyPress={(e) => e.key === 'Enter' && addSubject()}
+                />
+                <div className="flex gap-1">
+                    {/* FIXED: Added 'bg-zinc-900 text-white' to options so they are readable in dark mode */}
+                    <select 
+                        className="h-8 text-xs bg-secondary/30 rounded px-2 outline-none w-full text-muted-foreground cursor-pointer"
+                        value={newSubjectType}
+                        onChange={(e) => setNewSubjectType(e.target.value as any)}
+                    >
+                        <option value="course" className="bg-zinc-900 text-white">Course</option>
+                        <option value="business" className="bg-zinc-900 text-white">Business</option>
+                        <option value="hobby" className="bg-zinc-900 text-white">Hobby</option>
+                    </select>
+                    <Button size="sm" variant="ghost" onClick={addSubject} disabled={!newSubjectName} className="h-8 px-2 hover:bg-blue-500/20 hover:text-blue-400">
+                        <Plus className="w-4 h-4" />
+                    </Button>
+                </div>
+            </div>
+        </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-        {/* Subjects Sidebar */}
-        <div className="space-y-4">
-          <Card className="glow-card">
-            <CardHeader>
-              <CardTitle className="text-base">Add Subject</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <Input
-                placeholder="Subject name..."
-                value={newSubjectName}
-                onChange={(e) => setNewSubjectName(e.target.value)}
-                className="bg-input border-border/40"
-              />
-              <select
-                value={newSubjectType}
-                onChange={(e) => setNewSubjectType(e.target.value as any)}
-                className="w-full px-3 py-2 bg-input border border-border/40 rounded-md text-sm"
-              >
-                <option value="course">Course</option>
-                <option value="hobby">Hobby</option>
-                <option value="business">Business</option>
-              </select>
-              <Input
-                placeholder="Google Docs link (optional)..."
-                value={newSubjectDocsLink}
-                onChange={(e) => setNewSubjectDocsLink(e.target.value)}
-                className="bg-input border-border/40 text-sm"
-              />
-              <Button onClick={addSubject} className="w-full gap-2">
+        <div className="flex-1 overflow-y-auto p-2 space-y-1">
+            <button 
+                onClick={() => setSelectedSubject(null)}
+                className={`w-full flex items-center gap-3 px-3 py-2 rounded-md text-sm transition-all ${!selectedSubject ? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white shadow-md' : 'text-muted-foreground hover:bg-white/5 hover:text-foreground'}`}
+            >
                 <FolderPlus className="w-4 h-4" />
-                Create
-              </Button>
-            </CardContent>
-          </Card>
-
-          {/* Courses */}
-          {courseSubjects.length > 0 && (
-            <Card className="glow-card">
-              <CardHeader>
-                <CardTitle className="text-sm">Courses</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-2">
-                  {courseSubjects.map((subject) => (
-                    <div
-                      key={subject.id}
-                      className="flex items-center justify-between p-2 rounded hover-glow bg-secondary/30 border border-border/50 group"
-                    >
-                      <button
+                All Notes
+            </button>
+            
+            <div className="pt-4 pb-2 px-3 text-xs font-medium text-muted-foreground/50 uppercase tracking-wider">Subjects</div>
+            {subjects.map(subject => (
+                <div key={subject.id} className="group flex items-center justify-between pr-2 rounded-md transition-all hover:bg-white/5">
+                    <button 
                         onClick={() => setSelectedSubject(subject)}
-                        className={`flex-1 text-left text-sm font-medium transition-colors ${
-                          selectedSubject?.id === subject.id
-                            ? "text-primary"
-                            : "text-muted-foreground hover:text-foreground"
-                        }`}
-                      >
-                        {subject.name}
-                      </button>
-                      <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                        {subject.docsLink && (
-                          <a
-                            href={subject.docsLink}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="p-1 hover:text-primary transition-colors"
-                            title="Open Google Docs"
-                          >
-                            <ExternalLink className="w-3 h-3" />
-                          </a>
-                        )}
-                        <button
-                          onClick={() => deleteSubject(subject.id)}
-                          className="p-1 hover:text-destructive transition-colors"
-                        >
-                          <Trash2 className="w-3 h-3" />
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          )}
-
-          {/* Hobbies */}
-          {hobbySubjects.length > 0 && (
-            <Card className="glow-card">
-              <CardHeader>
-                <CardTitle className="text-sm">Hobbies</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-2">
-                  {hobbySubjects.map((subject) => (
-                    <div
-                      key={subject.id}
-                      className="flex items-center justify-between p-2 rounded hover-glow bg-secondary/30 border border-border/50 group"
+                        className={`flex-1 flex items-center gap-3 px-3 py-2 text-sm text-left truncate ${selectedSubject?.id === subject.id ? 'text-blue-400 font-medium' : 'text-muted-foreground'}`}
                     >
-                      <button
-                        onClick={() => setSelectedSubject(subject)}
-                        className={`flex-1 text-left text-sm font-medium transition-colors ${
-                          selectedSubject?.id === subject.id
-                            ? "text-primary"
-                            : "text-muted-foreground hover:text-foreground"
-                        }`}
-                      >
+                        {getSubjectIcon(subject.type)}
                         {subject.name}
-                      </button>
-                      <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                        {subject.docsLink && (
-                          <a
-                            href={subject.docsLink}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="p-1 hover:text-primary transition-colors"
-                          >
-                            <ExternalLink className="w-3 h-3" />
-                          </a>
-                        )}
-                        <button
-                          onClick={() => deleteSubject(subject.id)}
-                          className="p-1 hover:text-destructive transition-colors"
-                        >
-                          <Trash2 className="w-3 h-3" />
-                        </button>
-                      </div>
-                    </div>
-                  ))}
+                    </button>
+                    {selectedSubject?.id === subject.id && (
+                        <div className="flex gap-1">
+                            {subject.docsLink && (
+                                <a href={subject.docsLink} target="_blank" rel="noopener noreferrer" className="p-1.5 text-muted-foreground hover:text-blue-400 transition-colors">
+                                    <ExternalLink className="w-3 h-3" />
+                                </a>
+                            )}
+                            <button onClick={() => deleteSubject(subject.id)} className="p-1.5 text-muted-foreground hover:text-red-400 transition-colors">
+                                <Trash2 className="w-3 h-3" />
+                            </button>
+                        </div>
+                    )}
                 </div>
-              </CardContent>
-            </Card>
-          )}
-
-          {/* Business */}
-          {businessSubjects.length > 0 && (
-            <Card className="glow-card">
-              <CardHeader>
-                <CardTitle className="text-sm">Business</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-2">
-                  {businessSubjects.map((subject) => (
-                    <div
-                      key={subject.id}
-                      className="flex items-center justify-between p-2 rounded hover-glow bg-secondary/30 border border-border/50 group"
-                    >
-                      <button
-                        onClick={() => setSelectedSubject(subject)}
-                        className={`flex-1 text-left text-sm font-medium transition-colors ${
-                          selectedSubject?.id === subject.id
-                            ? "text-primary"
-                            : "text-muted-foreground hover:text-foreground"
-                        }`}
-                      >
-                        {subject.name}
-                      </button>
-                      <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                        {subject.docsLink && (
-                          <a
-                            href={subject.docsLink}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="p-1 hover:text-primary transition-colors"
-                          >
-                            <ExternalLink className="w-3 h-3" />
-                          </a>
-                        )}
-                        <button
-                          onClick={() => deleteSubject(subject.id)}
-                          className="p-1 hover:text-destructive transition-colors"
-                        >
-                          <Trash2 className="w-3 h-3" />
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          )}
-        </div>
-
-        {/* Main Notes Area */}
-        <div className="lg:col-span-3 space-y-4">
-          {/* Create Note */}
-          {selectedSubject && !selectedNote && (
-            <Card className="glow-accent">
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <CardTitle>New Note in {selectedSubject.name}</CardTitle>
-                  {selectedSubject.docsLink && (
-                    <a
-                      href={selectedSubject.docsLink}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-primary hover:text-primary/80 transition-colors"
-                      title="Open Google Docs for this subject"
-                    >
-                      <ExternalLink className="w-5 h-5" />
-                    </a>
-                  )}
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <Input
-                  placeholder="Note title..."
-                  value={newTitle}
-                  onChange={(e) => setNewTitle(e.target.value)}
-                  className="bg-input border-border/40"
-                />
-                <textarea
-                  placeholder="Write your note here..."
-                  value={newContent}
-                  onChange={(e) => setNewContent(e.target.value)}
-                  className="w-full h-64 p-3 bg-input border border-border/40 rounded-md outline-none text-sm resize-none text-foreground"
-                />
-                <div className="flex gap-2">
-                  <Button onClick={addNote} className="gap-2 flex-1">
-                    <Plus className="w-4 h-4" />
-                    Save Note
-                  </Button>
-                  <Button
-                    variant="outline"
-                    onClick={() => {
-                      setNewTitle("")
-                      setNewContent("")
-                    }}
-                  >
-                    Clear
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          )}
-
-          {/* Note Editor */}
-          {selectedNote && (
-            <Card className="glow-purple">
-              <CardHeader>
-                <input
-                  type="text"
-                  value={selectedNote.title}
-                  onChange={(e) => updateNote(selectedNote.id, { title: e.target.value })}
-                  className="text-2xl font-bold bg-transparent outline-none w-full text-foreground"
-                />
-                <div className="flex items-center justify-between mt-4">
-                  <div className="flex gap-2">
-                    <span className="text-sm bg-primary/20 text-primary px-2 py-1 rounded">
-                      {selectedSubject ? selectedSubject.name : "Unknown"}
-                    </span>
-                    <span className="text-xs text-muted-foreground self-center">
-                      {format(new Date(selectedNote.createdAt), "MMM d, yyyy")}
-                    </span>
-                  </div>
-                  <button
-                    onClick={() => toggleStar(selectedNote.id)}
-                    className="p-2 hover:text-accent transition-colors"
-                  >
-                    <Star className="w-5 h-5" fill={selectedNote.starred ? "currentColor" : "none"} />
-                  </button>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <textarea
-                  value={selectedNote.content}
-                  onChange={(e) => updateNote(selectedNote.id, { content: e.target.value })}
-                  className="w-full h-96 bg-transparent outline-none resize-none text-sm text-foreground"
-                />
-                <div className="mt-4 flex gap-2">
-                  <Button variant="outline" onClick={() => setSelectedNote(null)}>
-                    Back
-                  </Button>
-                  <Button variant="destructive" onClick={() => deleteNote(selectedNote.id)}>
-                    Delete
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          )}
-
-          {/* Search and Filter */}
-          {!selectedNote && (
-            <>
-              <Card className="glow-card">
-                <CardHeader>
-                  <CardTitle className="text-base">Search Notes</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  <div className="relative">
-                    <Search className="absolute left-2 top-2.5 w-4 h-4 text-muted-foreground" />
-                    <Input
-                      placeholder="Search..."
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                      className="pl-8 bg-input border-border/40"
-                    />
-                  </div>
-                  <div className="flex gap-2 flex-wrap">
-                    {(["all", "course", "hobby", "business"] as const).map((type) => (
-                      <Button
-                        key={type}
-                        variant={filterType === type ? "default" : "outline"}
-                        size="sm"
-                        onClick={() => setFilterType(type)}
-                      >
-                        {type.charAt(0).toUpperCase() + type.slice(1)}
-                      </Button>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Starred Notes */}
-              {starredNotes.length > 0 && (
-                <Card className="glow-accent">
-                  <CardHeader>
-                    <CardTitle className="text-base">Starred Notes</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                      {starredNotes.map((note) => (
-                        <button
-                          key={note.id}
-                          onClick={() => setSelectedNote(note)}
-                          className="text-left p-3 bg-secondary/40 hover-glow border border-border/50 rounded transition-all"
-                        >
-                          <div className="flex items-start justify-between">
-                            <div className="flex-1">
-                              <p className="font-medium text-sm line-clamp-1">{note.title}</p>
-                              <p className="text-xs text-muted-foreground mt-1">{getSubjectName(note.subject)}</p>
-                            </div>
-                            <Star className="w-4 h-4 text-accent fill-accent" />
-                          </div>
-                        </button>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
-              )}
-
-              {/* Regular Notes */}
-              {regularNotes.length > 0 && (
-                <Card className="glow-card">
-                  <CardHeader>
-                    <CardTitle className="text-base">All Notes ({regularNotes.length})</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                      {regularNotes.map((note) => (
-                        <button
-                          key={note.id}
-                          onClick={() => setSelectedNote(note)}
-                          className="text-left p-3 bg-secondary/20 hover-glow border border-border/50 rounded transition-all"
-                        >
-                          <p className="font-medium text-sm line-clamp-1">{note.title}</p>
-                          <p className="text-xs text-muted-foreground mt-1">{getSubjectName(note.subject)}</p>
-                        </button>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
-              )}
-
-              {filteredNotes.length === 0 && subjects.length > 0 && (
-                <Card className="glow-card">
-                  <CardContent className="pt-6">
-                    <p className="text-center text-sm text-muted-foreground">
-                      {selectedSubject
-                        ? `No notes in ${selectedSubject.name} yet. Create one above!`
-                        : "Select a subject to create notes"}
-                    </p>
-                  </CardContent>
-                </Card>
-              )}
-            </>
-          )}
+            ))}
         </div>
       </div>
+
+      {/* --- NOTE LIST (Middle Column) --- */}
+      <div className="w-80 border-r border-white/10 flex flex-col bg-background/30">
+        <div className="p-4 border-b border-white/5 space-y-3">
+            <h3 className="font-medium text-sm text-muted-foreground">
+                {selectedSubject ? selectedSubject.name : "All Notes"}
+            </h3>
+            <div className="relative">
+                <Search className="absolute left-2.5 top-2.5 w-4 h-4 text-muted-foreground" />
+                <Input 
+                    placeholder="Search notes..." 
+                    className="pl-9 h-9 bg-secondary/20 border-transparent focus:bg-background transition-all"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                />
+            </div>
+        </div>
+
+        <div className="flex-1 overflow-y-auto">
+            {filteredNotes.length === 0 ? (
+                <div className="flex flex-col items-center justify-center h-40 text-center text-muted-foreground/50 p-6">
+                    <p className="text-sm">No notes found</p>
+                </div>
+            ) : (
+                <div className="divide-y divide-white/5">
+                    {filteredNotes.map(note => (
+                        <button
+                            key={note.id}
+                            onClick={() => setSelectedNote(note)}
+                            className={`w-full text-left p-4 transition-all hover:bg-white/5 ${selectedNote?.id === note.id ? 'bg-blue-900/10 border-l-2 border-blue-400 shadow-[inset_0_0_10px_rgba(59,130,246,0.1)]' : 'border-l-2 border-transparent'}`}
+                        >
+                            <div className="flex justify-between items-start mb-1">
+                                <h4 className={`font-medium text-sm truncate pr-2 ${selectedNote?.id === note.id ? 'text-blue-200' : 'text-foreground'}`}>{note.title}</h4>
+                                {note.starred && <Star className="w-3 h-3 text-yellow-500 fill-yellow-500 flex-shrink-0" />}
+                            </div>
+                            <p className="text-xs text-muted-foreground line-clamp-2 mb-2 h-8">
+                                {note.content || "No content..."}
+                            </p>
+                            <div className="text-[10px] text-muted-foreground/60 flex justify-between items-center">
+                                <span>{format(new Date(note.createdAt), "MMM d")}</span>
+                                {!selectedSubject && (
+                                    <span className="bg-secondary/50 px-1.5 py-0.5 rounded capitalize">{
+                                        subjects.find(s => s.id === note.subject)?.name
+                                    }</span>
+                                )}
+                            </div>
+                        </button>
+                    ))}
+                </div>
+            )}
+        </div>
+      </div>
+
+      {/* --- EDITOR (Right Column) --- */}
+      <div className="flex-1 flex flex-col bg-background/50">
+        {selectedNote ? (
+            <>
+                {/* Editor Toolbar */}
+                <div className="h-14 border-b border-white/5 flex items-center justify-between px-6 bg-secondary/5">
+                    <span className="text-xs text-muted-foreground">
+                        Edited {format(new Date(), "h:mm a")}
+                    </span>
+                    <div className="flex items-center gap-2">
+                        <Button variant="ghost" size="icon" className="h-8 w-8 hover:text-yellow-400" onClick={() => toggleStar(selectedNote.id)}>
+                            <Star className={`w-4 h-4 ${selectedNote.starred ? 'fill-yellow-400 text-yellow-400' : ''}`} />
+                        </Button>
+                        <Button variant="ghost" size="icon" className="h-8 w-8 hover:text-red-400" onClick={() => deleteNote(selectedNote.id)}>
+                            <Trash2 className="w-4 h-4" />
+                        </Button>
+                    </div>
+                </div>
+
+                {/* Editor Content */}
+                <div className="flex-1 overflow-y-auto p-8">
+                    <input 
+                        className="w-full bg-transparent text-3xl font-bold border-none outline-none placeholder:text-muted-foreground/30 mb-6"
+                        placeholder="Note Title"
+                        value={selectedNote.title}
+                        onChange={(e) => updateNoteTitle(selectedNote.id, e.target.value)}
+                    />
+                    <Textarea 
+                        className="w-full h-full min-h-[500px] resize-none border-none outline-none focus-visible:ring-0 bg-transparent text-base leading-relaxed p-0 placeholder:text-muted-foreground/30"
+                        placeholder="Start typing..."
+                        value={selectedNote.content}
+                        onChange={(e) => updateNoteContent(selectedNote.id, e.target.value)}
+                    />
+                </div>
+            </>
+        ) : (
+            <div className="flex-1 flex flex-col items-center justify-center text-muted-foreground/40 p-8">
+                {selectedSubject ? (
+                    isCreatingNote ? (
+                        <div className="w-full max-w-sm space-y-4 animate-in fade-in zoom-in-95">
+                            <h3 className="text-lg font-medium text-foreground text-center">New Note</h3>
+                            <Input 
+                                autoFocus
+                                placeholder="Note Title..." 
+                                className="bg-secondary/20 border-white/10"
+                                value={newNoteTitle}
+                                onChange={(e) => setNewNoteTitle(e.target.value)}
+                                onKeyPress={(e) => e.key === 'Enter' && createNote()}
+                            />
+                            <div className="flex gap-2">
+                                <Button variant="ghost" className="flex-1" onClick={() => setIsCreatingNote(false)}>Cancel</Button>
+                                <Button className="flex-1 bg-blue-600 hover:bg-blue-500" onClick={createNote}>Create</Button>
+                            </div>
+                        </div>
+                    ) : (
+                        <div className="text-center space-y-4">
+                            <BookOpen className="w-16 h-16 mx-auto text-blue-400/20" />
+                            <p>Select a note to view or create a new one.</p>
+                            <Button onClick={() => setIsCreatingNote(true)} className="gap-2">
+                                <Plus className="w-4 h-4" /> Create New Note
+                            </Button>
+                        </div>
+                    )
+                ) : (
+                    <div className="text-center">
+                        <p>Select a Subject from the sidebar to view notes.</p>
+                    </div>
+                )}
+            </div>
+        )}
+      </div>
+
     </div>
   )
 }
