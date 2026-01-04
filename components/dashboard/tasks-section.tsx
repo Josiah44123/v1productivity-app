@@ -1,12 +1,22 @@
 "use client"
 
 import { useState } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Plus, Trash2, Check, ChevronDown, ChevronRight, CheckCircle } from "lucide-react"
+import { 
+  Plus, 
+  Trash2, 
+  ChevronDown, 
+  ChevronRight, 
+  Calendar, 
+  Star, 
+  Circle, 
+  CheckCircle2, 
+  Tag
+} from "lucide-react"
 import { format } from "date-fns"
 
+// --- Types ---
 interface Task {
   id: string
   title: string
@@ -27,16 +37,19 @@ interface TasksSectionProps {
 }
 
 export function TasksSection({ tasks = [], setTasks }: TasksSectionProps) {
+  // --- State ---
   const [newTask, setNewTask] = useState("")
   const [selectedSubject, setSelectedSubject] = useState("All")
   const [expandedTasks, setExpandedTasks] = useState<Set<string>>(new Set())
+  
+  // Quick-add settings
   const [newUrgency, setNewUrgency] = useState<"minor" | "moderate" | "critical">("moderate")
-  const [newCategory, setNewCategory] = useState<
-    "major-subject" | "minor-subject" | "hobby" | "extracurricular" | "organization"
-  >("major-subject")
+  const [newCategory, setNewCategory] = useState<Task['category']>("major-subject")
 
-  const subjects = Array.from(new Set(tasks.map((t) => t.subject)))
+  // FIX: Filter out "General" so the button doesn't appear
+  const subjects = Array.from(new Set(tasks.map((t) => t.subject))).filter(s => s !== "General")
 
+  // --- Logic ---
   const addTask = () => {
     if (!newTask.trim()) return
     const task: Task = {
@@ -51,7 +64,7 @@ export function TasksSection({ tasks = [], setTasks }: TasksSectionProps) {
       subtasks: [],
       expanded: false,
     }
-    setTasks([...tasks, task])
+    setTasks([task, ...tasks])
     setNewTask("")
   }
 
@@ -61,11 +74,8 @@ export function TasksSection({ tasks = [], setTasks }: TasksSectionProps) {
 
   const toggleExpanded = (id: string) => {
     const newExpanded = new Set(expandedTasks)
-    if (newExpanded.has(id)) {
-      newExpanded.delete(id)
-    } else {
-      newExpanded.add(id)
-    }
+    if (newExpanded.has(id)) newExpanded.delete(id)
+    else newExpanded.add(id)
     setExpandedTasks(newExpanded)
   }
 
@@ -74,7 +84,7 @@ export function TasksSection({ tasks = [], setTasks }: TasksSectionProps) {
   }
 
   const addSubtask = (parentTaskId: string) => {
-    const subtaskTitle = prompt("Enter subtask title:")
+    const subtaskTitle = prompt("Add a step:")
     if (!subtaskTitle?.trim()) return
 
     setTasks(
@@ -95,280 +105,294 @@ export function TasksSection({ tasks = [], setTasks }: TasksSectionProps) {
                 completed: false,
               },
             ],
+            expanded: true,
           }
         }
         return t
-      }),
+      })
     )
+    setExpandedTasks(new Set(expandedTasks).add(parentTaskId))
   }
 
-  const deleteCompletedTask = (id: string) => {
-    setTasks(tasks.filter((t) => t.id !== id))
-  }
-
-  const filteredTasks = selectedSubject === "All" ? tasks : tasks.filter((t) => t.subject === selectedSubject)
-
-  const getUrgencyStyle = (urgency: string) => {
-    if (!urgency) return ""
+  // --- Helpers for Colors ---
+  const getUrgencyColor = (urgency: string) => {
     switch (urgency) {
-      case "critical":
-        return "bg-red-500/10 text-red-500 border border-red-500/30"
-      case "moderate":
-        return "bg-yellow-500/10 text-yellow-500 border border-yellow-500/30"
-      case "minor":
-        return "bg-green-500/10 text-green-500 border border-green-500/30"
-      default:
-        return ""
+      case "critical": return "text-red-400 border-l-red-500 bg-red-500/5"
+      case "moderate": return "text-amber-400 border-l-amber-500 bg-amber-500/5"
+      case "minor": return "text-emerald-400 border-l-emerald-500 bg-emerald-500/5"
+      default: return "text-slate-400 border-l-slate-500"
     }
   }
 
-  const getCategoryLabel = (category: string) => {
-    const labels: Record<string, string> = {
-      "major-subject": "Major Subject",
-      "minor-subject": "Minor Subject",
-      hobby: "Hobby",
-      extracurricular: "Extracurricular",
-      organization: "Organization",
+  const getCategoryColorStyles = (category: string) => {
+    switch (category) {
+      case "major-subject": return "bg-blue-500/20 text-blue-300 border border-blue-500/30"
+      case "minor-subject": return "bg-purple-500/20 text-purple-300 border border-purple-500/30"
+      case "hobby": return "bg-green-500/20 text-green-300 border border-green-500/30"
+      case "organization": return "bg-orange-500/20 text-orange-300 border border-orange-500/30"
+      case "extracurricular": return "bg-pink-500/20 text-pink-300 border border-pink-500/30"
+      default: return "bg-secondary text-muted-foreground"
     }
-    return labels[category] || category
   }
+
+  const getUrgencySelectStyles = (urgency: string) => {
+    switch (urgency) {
+      case "critical": return "bg-red-500/20 text-red-400 border-red-500/30"
+      case "moderate": return "bg-amber-500/20 text-amber-400 border-amber-500/30"
+      case "minor": return "bg-emerald-500/20 text-emerald-400 border-emerald-500/30"
+      default: return "bg-secondary text-muted-foreground"
+    }
+  }
+
+  const filteredTasks = selectedSubject === "All" 
+    ? tasks 
+    : tasks.filter((t) => t.subject === selectedSubject)
+
+  const sortedTasks = [...filteredTasks].sort((a, b) => {
+    if (a.completed === b.completed) return 0;
+    return a.completed ? 1 : -1;
+  });
 
   return (
     <div className="space-y-6 animate-in fade-in duration-500">
-      <div>
-        <h1 className="text-3xl font-bold bg-gradient-to-r from-orange-400 via-pink-400 to-orange-500 bg-clip-text text-transparent">
-          Tasks & To-Do
-        </h1>
-        <p className="text-orange-300/70 mt-2">Manage your tasks with urgency levels and categories</p>
-      </div>
-
-      <Card className="border-2 border-orange-500/30 glow-card">
-        <CardHeader>
-          <CardTitle className="text-orange-300">Add New Task</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <Input
-            placeholder="Enter task title..."
-            value={newTask}
-            onChange={(e) => setNewTask(e.target.value)}
-            onKeyPress={(e) => e.key === "Enter" && addTask()}
-            className="bg-input border-border/40"
-          />
-
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="text-xs text-orange-300/70 mb-2 block">Category</label>
-              <select
-                value={newCategory}
-                onChange={(e) => setNewCategory(e.target.value as any)}
-                className="w-full px-3 py-2 rounded-md bg-input border border-border/40 text-sm outline-none"
-              >
-                <option value="major-subject">Major Subject</option>
-                <option value="minor-subject">Minor Subject</option>
-                <option value="hobby">Hobby</option>
-                <option value="extracurricular">Extracurricular</option>
-                <option value="organization">Organization</option>
-              </select>
-            </div>
-            <div>
-              <label className="text-xs text-orange-300/70 mb-2 block">Priority</label>
-              <select
-                value={newUrgency}
-                onChange={(e) => setNewUrgency(e.target.value as any)}
-                className="w-full px-3 py-2 rounded-md bg-input border border-border/40 text-sm outline-none"
-              >
-                <option value="minor">Minor</option>
-                <option value="moderate">Moderate</option>
-                <option value="critical">Critical</option>
-              </select>
-            </div>
-          </div>
-
-          <Button
-            onClick={addTask}
-            className="w-full gap-2 transition-all active:scale-95 bg-gradient-to-r from-orange-500 to-pink-500 hover:from-orange-600 hover:to-pink-600"
-          >
-            <Plus className="w-4 h-4" />
-            Add Task
-          </Button>
-        </CardContent>
-      </Card>
-
-      <div className="flex gap-2 overflow-x-auto pb-2">
-        <Button
-          variant={selectedSubject === "All" ? "default" : "outline"}
-          onClick={() => setSelectedSubject("All")}
-          className="transition-all active:scale-95"
-        >
-          All
-        </Button>
-        {subjects.map((subject) => (
-          <Button
-            key={subject}
-            variant={selectedSubject === subject ? "default" : "outline"}
-            onClick={() => setSelectedSubject(subject)}
-            className="whitespace-nowrap transition-all active:scale-95"
-          >
-            {subject}
-          </Button>
-        ))}
-      </div>
-
-      <div className="space-y-3">
-        {filteredTasks.length > 0 ? (
-          filteredTasks.map((task) => (
-            <Card
-              key={task.id}
-              className="glow-card hover:glow-orange transition-all group border-2 border-transparent hover:border-orange-500/30 animate-in fade-in duration-300"
+      
+      {/* Header */}
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
+        <div>
+          <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-400 via-purple-400 to-blue-500 bg-clip-text text-transparent">
+            My Day
+          </h1>
+          <p className="text-blue-300/70 mt-1">{format(new Date(), "EEEE, MMMM d")}</p>
+        </div>
+        
+        {/* Subject Filters */}
+        <div className="flex gap-2 overflow-x-auto max-w-full pb-2 md:pb-0 scrollbar-hide">
+            <Button
+              size="sm"
+              variant={selectedSubject === "All" ? "default" : "secondary"}
+              onClick={() => setSelectedSubject("All")}
+              className="rounded-full px-4"
             >
-              <CardContent className="pt-6">
-                <div className="flex items-start gap-3">
-                  <button
-                    onClick={() => toggleTask(task.id)}
-                    className={`mt-1 p-1 rounded transition-all ${
-                      task.completed
-                        ? "bg-green-500/20 border-green-500/50"
-                        : "border border-border/40 hover:bg-card/50"
-                    }`}
-                  >
-                    {task.completed && <Check className="w-4 h-4 text-green-500" />}
-                  </button>
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2">
-                      {task.subtasks && task.subtasks.length > 0 && (
-                        <button onClick={() => toggleExpanded(task.id)} className="p-1 transition-all active:scale-90">
-                          {expandedTasks.has(task.id) ? (
-                            <ChevronDown className="w-4 h-4" />
-                          ) : (
-                            <ChevronRight className="w-4 h-4" />
-                          )}
-                        </button>
-                      )}
-                      <div className="flex-1">
-                        <p className={`font-medium ${task.completed ? "line-through text-muted-foreground" : ""}`}>
-                          {task.title}
-                        </p>
-                        <div className="flex flex-wrap gap-2 mt-2">
-                          <span className="text-xs bg-orange-500/10 px-2 py-1 rounded border border-orange-500/40 text-orange-300">
-                            {task.subject}
-                          </span>
-                          <span
-                            className={`text-xs px-2 py-1 rounded text-xs font-medium ${getUrgencyStyle(task.urgency)}`}
-                          >
-                            {task.urgency ? task.urgency.charAt(0).toUpperCase() + task.urgency.slice(1) : "Unknown"}
-                          </span>
-                          <span className="text-xs bg-orange-500/10 px-2 py-1 rounded border border-orange-500/40 text-orange-300">
-                            {getCategoryLabel(task.category)}
-                          </span>
-                          <span className="text-xs text-orange-300/70">{format(new Date(task.dueDate), "MMM d")}</span>
+              All
+            </Button>
+            {subjects.map((subject) => (
+              <Button
+                key={subject}
+                size="sm"
+                variant={selectedSubject === subject ? "default" : "outline"}
+                onClick={() => setSelectedSubject(subject)}
+                className="rounded-full whitespace-nowrap border-blue-500/30"
+              >
+                {subject}
+              </Button>
+            ))}
+        </div>
+      </div>
+
+      {/* Main Input Bar - MS To Do Style */}
+      <div className="relative group z-10">
+        <div className="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-purple-500/20 rounded-xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+        <div className="relative bg-background/80 backdrop-blur-md border border-blue-500/30 rounded-xl shadow-lg flex items-center p-2 gap-2 transition-all group-hover:bg-background/90 group-focus-within:bg-background">
+            
+            {/* MS To Do Style Button */}
+            <button 
+                onClick={addTask}
+                className="ml-2 w-8 h-8 flex items-center justify-center rounded-full text-blue-400 transition-all duration-300"
+            >
+                <Plus className="w-6 h-6 absolute transition-all duration-300 scale-100 opacity-100 group-hover:scale-0 group-hover:opacity-0 group-focus-within:scale-0 group-focus-within:opacity-0" />
+                <Circle className="w-5 h-5 absolute transition-all duration-300 scale-0 opacity-0 group-hover:scale-100 group-hover:opacity-100 group-focus-within:scale-100 group-focus-within:opacity-100" />
+            </button>
+
+            <Input 
+                value={newTask}
+                onChange={(e) => setNewTask(e.target.value)}
+                onKeyPress={(e) => e.key === "Enter" && addTask()}
+                placeholder="Add a task" 
+                className="border-none bg-transparent shadow-none focus-visible:ring-0 text-lg placeholder:text-muted-foreground/50 h-12 flex-1"
+            />
+            
+            {/* Quick Settings */}
+            <div className="hidden sm:flex items-center gap-2 pr-2">
+                <select
+                    value={newCategory}
+                    onChange={(e) => setNewCategory(e.target.value as any)}
+                    className={`text-xs px-3 py-1.5 rounded-md border outline-none cursor-pointer font-medium transition-colors ${getCategoryColorStyles(newCategory)}`}
+                >
+                    <option value="major-subject" className="bg-background text-foreground">Major Subject</option>
+                    <option value="minor-subject" className="bg-background text-foreground">Minor Subject</option>
+                    <option value="hobby" className="bg-background text-foreground">Hobby</option>
+                    <option value="organization" className="bg-background text-foreground">Organization</option>
+                    <option value="extracurricular" className="bg-background text-foreground">Extracurricular</option>
+                </select>
+                
+                <select
+                    value={newUrgency}
+                    onChange={(e) => setNewUrgency(e.target.value as any)}
+                    className={`text-xs px-3 py-1.5 rounded-md border outline-none cursor-pointer font-medium transition-colors ${getUrgencySelectStyles(newUrgency)}`}
+                >
+                    <option value="minor" className="bg-background text-foreground">Minor (!)</option>
+                    <option value="moderate" className="bg-background text-foreground">Moderate (!!)</option>
+                    <option value="critical" className="bg-background text-foreground">Critical (!!!)</option>
+                </select>
+            </div>
+        </div>
+        
+        {/* Mobile View controls */}
+        <div className="flex sm:hidden justify-between mt-2 gap-2">
+             <select
+                    value={newCategory}
+                    onChange={(e) => setNewCategory(e.target.value as any)}
+                    className={`flex-1 text-xs px-3 py-2 rounded-md border outline-none cursor-pointer font-medium transition-colors ${getCategoryColorStyles(newCategory)}`}
+                >
+                    <option value="major-subject" className="bg-background text-foreground">Major</option>
+                    <option value="minor-subject" className="bg-background text-foreground">Minor</option>
+                    <option value="hobby" className="bg-background text-foreground">Hobby</option>
+                    <option value="organization" className="bg-background text-foreground">Org</option>
+            </select>
+             <select
+                    value={newUrgency}
+                    onChange={(e) => setNewUrgency(e.target.value as any)}
+                    className={`flex-1 text-xs px-3 py-2 rounded-md border outline-none cursor-pointer font-medium transition-colors ${getUrgencySelectStyles(newUrgency)}`}
+                >
+                    <option value="minor" className="bg-background text-foreground">Minor</option>
+                    <option value="moderate" className="bg-background text-foreground">Moderate</option>
+                    <option value="critical" className="bg-background text-foreground">Critical</option>
+            </select>
+        </div>
+      </div>
+
+      {/* Task List */}
+      <div className="space-y-1">
+        {sortedTasks.length > 0 ? (
+          sortedTasks.map((task) => (
+            <div 
+                key={task.id} 
+                className={`group relative transition-all duration-300 ${task.completed ? 'opacity-60' : 'opacity-100'}`}
+            >
+                {/* Task Item Container */}
+                <div className={`
+                    relative flex items-center gap-3 p-3 rounded-lg border border-transparent 
+                    bg-secondary/10 hover:bg-secondary/30 transition-all cursor-default
+                    border-l-[4px] ${getUrgencyColor(task.urgency)}
+                `}>
+                    
+                    {/* Checkbox */}
+                    <button 
+                        onClick={() => toggleTask(task.id)}
+                        className="flex-shrink-0 text-muted-foreground hover:text-blue-500 transition-colors"
+                    >
+                        {task.completed ? (
+                            <CheckCircle2 className="w-5 h-5 text-blue-500 fill-blue-500/20" />
+                        ) : (
+                            <Circle className="w-5 h-5" />
+                        )}
+                    </button>
+
+                    {/* Task Details */}
+                    <div className="flex-1 min-w-0 flex flex-col justify-center" onClick={() => toggleTask(task.id)}>
+                        <span className={`text-sm font-medium truncate transition-all ${
+                            task.completed ? "line-through text-muted-foreground" : "text-foreground"
+                        }`}>
+                            {task.title}
+                        </span>
+                        
+                        <div className="flex items-center gap-3 text-[11px] text-muted-foreground mt-1">
+                            <span className={`flex items-center gap-1 px-1.5 py-0.5 rounded ${getCategoryColorStyles(task.category)} border-none bg-opacity-10`}>
+                                <Tag className="w-3 h-3" />
+                                {task.subject}
+                            </span>
+                            
+                            {task.subtasks && task.subtasks.length > 0 && (
+                                <span className="flex items-center gap-1">
+                                    <span className="w-1 h-1 rounded-full bg-muted-foreground" />
+                                    {task.subtasks.filter(st => st.completed).length}/{task.subtasks.length} steps
+                                </span>
+                            )}
+                            <span className="flex items-center gap-1">
+                                <Calendar className="w-3 h-3" />
+                                {format(new Date(task.dueDate), "MMM d")}
+                            </span>
                         </div>
-                      </div>
                     </div>
-                  </div>
-                  <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                    {!task.completed ? (
-                      <>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => addSubtask(task.id)}
-                          title="Add subtask"
-                          className="transition-all active:scale-95"
+
+                    {/* Actions */}
+                    <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                         <button 
+                            onClick={(e) => { e.stopPropagation(); toggleExpanded(task.id); }}
+                            className="p-1.5 hover:bg-background/50 rounded-md text-muted-foreground hover:text-foreground"
                         >
-                          <Plus className="w-4 h-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => toggleTask(task.id)}
-                          title="Mark as complete"
-                          className="hover:bg-green-500/20 transition-all active:scale-95"
+                            {expandedTasks.has(task.id) ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
+                        </button>
+                        
+                        <button 
+                            onClick={(e) => { e.stopPropagation(); addSubtask(task.id); }}
+                            className="p-1.5 hover:bg-background/50 rounded-md text-muted-foreground hover:text-foreground"
+                            title="Add Step"
                         >
-                          <CheckCircle className="w-4 h-4 text-green-500" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => deleteTask(task.id)}
-                          className="transition-all active:scale-95"
+                            <Plus className="w-4 h-4" />
+                        </button>
+
+                        <button 
+                            onClick={(e) => { e.stopPropagation(); deleteTask(task.id); }}
+                            className="p-1.5 hover:bg-red-500/20 rounded-md text-muted-foreground hover:text-red-400"
                         >
-                          <Trash2 className="w-4 h-4 text-destructive" />
-                        </Button>
-                      </>
-                    ) : (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => deleteCompletedTask(task.id)}
-                        title="Remove completed task"
-                        className="hover:bg-red-500/20 transition-all active:scale-95"
-                      >
-                        <Trash2 className="w-4 h-4 text-destructive" />
-                      </Button>
-                    )}
-                  </div>
+                            <Trash2 className="w-4 h-4" />
+                        </button>
+                        
+                        <div className="px-1">
+                             <Star className={`w-4 h-4 ${task.urgency === 'critical' ? 'fill-red-400 text-red-400' : 'text-muted-foreground/30'}`} />
+                        </div>
+                    </div>
                 </div>
 
+                {/* Subtasks List */}
                 {task.subtasks && task.subtasks.length > 0 && expandedTasks.has(task.id) && (
-                  <div className="mt-4 ml-8 space-y-2 border-l border-border/40 pl-4">
-                    {task.subtasks.map((subtask) => (
-                      <div key={subtask.id} className="flex items-center justify-between group">
-                        <div className="flex items-center gap-2 flex-1">
-                          <button
-                            onClick={() => {
-                              const updatedTasks = tasks.map((t) => {
-                                if (t.id === task.id) {
-                                  return {
-                                    ...t,
-                                    subtasks: t.subtasks?.map((st) =>
-                                      st.id === subtask.id ? { ...st, completed: !st.completed } : st,
-                                    ),
-                                  }
-                                }
-                                return t
-                              })
-                              setTasks(updatedTasks)
-                            }}
-                            className={`p-1 rounded ${subtask.completed ? "bg-green-500/20" : "border border-border/40"}`}
-                          >
-                            {subtask.completed && <Check className="w-3 h-3 text-green-500" />}
-                          </button>
-                          <span
-                            className={subtask.completed ? "line-through text-muted-foreground text-sm" : "text-sm"}
-                          >
-                            {subtask.title}
-                          </span>
-                        </div>
-                        <button
-                          onClick={() => {
-                            const updatedTasks = tasks.map((t) => {
-                              if (t.id === task.id) {
-                                return {
-                                  ...t,
-                                  subtasks: t.subtasks?.filter((st) => st.id !== subtask.id),
-                                }
-                              }
-                              return t
-                            })
-                            setTasks(updatedTasks)
-                          }}
-                          className="p-1 opacity-0 group-hover:opacity-100 transition-opacity hover:text-destructive"
-                        >
-                          <Trash2 className="w-3 h-3" />
-                        </button>
-                      </div>
-                    ))}
-                  </div>
+                    <div className="ml-5 pl-4 border-l-2 border-dashed border-muted/20 mt-1 space-y-1">
+                        {task.subtasks.map((subtask) => (
+                            <div key={subtask.id} className="flex items-center gap-3 p-2 rounded-md hover:bg-secondary/20 transition-colors group/sub">
+                                <button 
+                                    onClick={() => {
+                                        const updatedTasks = tasks.map(t => 
+                                            t.id === task.id 
+                                            ? { ...t, subtasks: t.subtasks?.map(st => st.id === subtask.id ? { ...st, completed: !st.completed } : st) }
+                                            : t
+                                        );
+                                        setTasks(updatedTasks);
+                                    }}
+                                    className="text-muted-foreground hover:text-blue-500"
+                                >
+                                    {subtask.completed ? <CheckCircle2 className="w-3.5 h-3.5 text-blue-500" /> : <Circle className="w-3.5 h-3.5" />}
+                                </button>
+                                <span className={`text-xs flex-1 ${subtask.completed ? "line-through text-muted-foreground" : "text-foreground/80"}`}>
+                                    {subtask.title}
+                                </span>
+                                <button 
+                                    onClick={() => {
+                                         const updatedTasks = tasks.map(t => 
+                                            t.id === task.id 
+                                            ? { ...t, subtasks: t.subtasks?.filter(st => st.id !== subtask.id) }
+                                            : t
+                                        );
+                                        setTasks(updatedTasks);
+                                    }}
+                                    className="opacity-0 group-hover/sub:opacity-100 p-1 hover:text-red-400"
+                                >
+                                    <Trash2 className="w-3 h-3" />
+                                </button>
+                            </div>
+                        ))}
+                    </div>
                 )}
-              </CardContent>
-            </Card>
+            </div>
           ))
         ) : (
-          <Card className="glow-card">
-            <CardContent className="pt-6">
-              <p className="text-center text-muted-foreground">No tasks yet. Create one to get started!</p>
-            </CardContent>
-          </Card>
+          <div className="flex flex-col items-center justify-center py-12 text-center opacity-60">
+             <div className="w-24 h-24 bg-blue-500/10 rounded-full flex items-center justify-center mb-4">
+                <CheckCircle2 className="w-12 h-12 text-blue-500/50" />
+             </div>
+             <p className="text-lg font-medium text-blue-300">All caught up!</p>
+             <p className="text-sm text-muted-foreground">Enjoy your day or add a new task above.</p>
+          </div>
         )}
       </div>
     </div>
