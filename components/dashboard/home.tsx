@@ -101,7 +101,7 @@ export function DashboardHome({ tasks = [], events = [], notes = [] }: HomeProps
         {/* LEFT COLUMN: METRICS */}
         <div className="lg:col-span-2 flex flex-col gap-6">
           {/* Overall Progress - DEEP INDIGO GRADIENT */}
-          <Card className="border-0 bg-gradient-to-br from-[#1e1b4b] via-[#312e81] to-[#1e1b4b] shadow-xl h-[180px] flex flex-col justify-center">
+          <Card className="border border-white/20 bg-gradient-to-br from-[#1e1b4b] via-[#312e81] to-[#1e1b4b] shadow-xl h-[180px] flex flex-col justify-center">
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium text-cyan-400 font-mono tracking-wider">
                 OVERALL PROGRESS
@@ -125,7 +125,7 @@ export function DashboardHome({ tasks = [], events = [], notes = [] }: HomeProps
 
           <div className="grid grid-cols-2 gap-6">
             {/* Total Tasks - DEEP ORANGE/BROWN GRADIENT */}
-            <Card className="border-2 border-cyan-500/40 bg-gradient-to-br from-[#0f172a] to-[#020617] hover:from-[#1a2847] transition-colors shadow-xl">
+            <Card className="border border-white/20 bg-gradient-to-br from-[#0f172a] to-[#020617] hover:from-[#1a2847] transition-colors shadow-xl">
               <CardHeader className="pb-2">
                 <CardTitle className="text-sm font-medium text-cyan-300 font-mono">TOTAL TASKS</CardTitle>
               </CardHeader>
@@ -146,7 +146,7 @@ export function DashboardHome({ tasks = [], events = [], notes = [] }: HomeProps
             </Card>
 
             {/* Today's Events - DEEP ROSE/PINK GRADIENT */}
-            <Card className="border-2 border-pink-500/40 bg-gradient-to-br from-[#1a0a1a] to-[#020617] hover:from-[#2a1a2a] transition-colors shadow-xl">
+            <Card className="border border-white/20 bg-gradient-to-br from-[#1a0a1a] to-[#020617] hover:from-[#2a1a2a] transition-colors shadow-xl">
               <CardHeader className="pb-2">
                 <CardTitle className="text-sm font-medium text-pink-300 font-mono">TODAY'S EVENTS</CardTitle>
               </CardHeader>
@@ -170,7 +170,7 @@ export function DashboardHome({ tasks = [], events = [], notes = [] }: HomeProps
           </div>
 
           {/* Monthly Progress - DEEP CYAN/BLUE GRADIENT */}
-          <Card className="border-0 bg-gradient-to-br from-[#083344] to-[#020617] shadow-xl h-[180px] flex flex-col justify-center">
+          <Card className="border border-white/20 bg-gradient-to-br from-[#083344] to-[#020617] shadow-xl h-[180px] flex flex-col justify-center">
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium text-sky-400 font-mono">MONTHLY TARGET</CardTitle>
             </CardHeader>
@@ -191,7 +191,7 @@ export function DashboardHome({ tasks = [], events = [], notes = [] }: HomeProps
         {/* RIGHT COLUMN: CHARTS */}
         <div className="space-y-6">
           {/* CHART 1: URGENCY - DEEP SLATE GRADIENT */}
-          <Card className="border-0 bg-gradient-to-br from-[#0f172a] to-[#020617] shadow-xl flex flex-col h-[360px]">
+          <Card className="border border-white/20 bg-gradient-to-br from-[#0f172a] to-[#020617] shadow-xl flex flex-col h-[360px]">
             <CardHeader className="pb-0">
               <CardTitle className="text-lg text-white font-medium">Urgency Breakdown</CardTitle>
               <CardDescription className="text-slate-400 text-sm">Tasks by priority level</CardDescription>
@@ -250,7 +250,7 @@ export function DashboardHome({ tasks = [], events = [], notes = [] }: HomeProps
           </Card>
 
           {/* CHART 2: CATEGORY - DEEP VIOLET GRADIENT */}
-          <Card className="border-0 bg-gradient-to-br from-[#2e1065] to-[#020617] shadow-xl flex flex-col h-[360px]">
+          <Card className="border border-white/20 bg-gradient-to-br from-[#2e1065] to-[#020617] shadow-xl flex flex-col h-[360px]">
             <CardHeader className="pb-0">
               <CardTitle className="text-lg text-white font-medium">Category Split</CardTitle>
               <CardDescription className="text-slate-400 text-sm">Distribution by type</CardDescription>
@@ -309,7 +309,7 @@ export function DashboardHome({ tasks = [], events = [], notes = [] }: HomeProps
       {/* Bottom Section: Task List & Notes - DEEP ZINC GRADIENT */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Upcoming Tasks */}
-        <Card className="border-2 border-cyan-500/40 bg-gradient-to-br from-[#18181b] to-[#09090b] shadow-xl hover:border-cyan-500/60 transition-colors">
+        <Card className="border border-white/20 bg-gradient-to-br from-[#18181b] to-[#09090b] shadow-xl hover:border-cyan-500/60 transition-colors">
           <CardHeader>
             <CardTitle className="text-white text-lg bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">
               Upcoming Tasks
@@ -354,7 +354,7 @@ export function DashboardHome({ tasks = [], events = [], notes = [] }: HomeProps
         </Card>
 
         {/* Today's Events */}
-        <Card className="border-2 border-pink-500/40 bg-gradient-to-br from-[#18181b] to-[#09090b] shadow-xl hover:border-pink-500/60 transition-colors">
+        <Card className="border border-white/20 bg-gradient-to-br from-[#18181b] to-[#09090b] shadow-xl hover:border-pink-500/60 transition-colors">
           <CardHeader>
             <CardTitle className="text-white text-lg bg-gradient-to-r from-pink-400 to-rose-400 bg-clip-text text-transparent">
               Today's Schedule
