@@ -295,7 +295,7 @@ export function NotesSection({ notes = [], setNotes }: NotesSectionProps) {
                 {selectedSubject ? (
                     isCreatingNote ? (
                         <div className="w-full max-w-sm space-y-4 animate-in fade-in zoom-in-95">
-                            <h3 className="text-lg font-medium text-foreground text-center">New Note</h3>
+                            <h3 className="text-lg font-medium text-foreground text-center"> Add a New Note</h3>
                             <Input 
                                 autoFocus
                                 placeholder="Note Title..." 
