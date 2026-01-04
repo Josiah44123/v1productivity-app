@@ -4,6 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { format } from "date-fns"
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts"
 import { useLocalStorage } from "@/hooks/use-local-storage"
+import { CheckCircle2, CalendarOff } from "lucide-react"
 
 interface HomeProps {
   tasks: any[]
@@ -94,7 +95,7 @@ export function DashboardHome({ tasks = [], events = [], notes = [] }: HomeProps
         <h1 className="text-3xl font-bold text-white tracking-tight">
           {getGreeting()}, <span className="text-cyan-400">{username}</span>
         </h1>
-        <p className="text-slate-400 mt-1 font-mono text-sm">{format(new Date(), "EEEE, MMMM d, yyyy")}</p>
+        <p className="text-slate-400 mt-1 font-mono text-xl">{format(new Date(), "EEEE, MMMM d, yyyy")}</p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -104,7 +105,7 @@ export function DashboardHome({ tasks = [], events = [], notes = [] }: HomeProps
           <Card className="border border-white/20 bg-gradient-to-br from-[#1e1b4b] via-[#312e81] to-[#1e1b4b] shadow-xl h-[180px] flex flex-col justify-center">
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium text-cyan-400 font-mono tracking-wider">
-                OVERALL PROGRESS
+                SEMESTER MOMENTUM
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -127,12 +128,12 @@ export function DashboardHome({ tasks = [], events = [], notes = [] }: HomeProps
             {/* Total Tasks - DEEP ORANGE/BROWN GRADIENT */}
             <Card className="border border-white/20 bg-gradient-to-br from-[#0f172a] to-[#020617] hover:from-[#1a2847] transition-colors shadow-xl">
               <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium text-cyan-300 font-mono">TOTAL TASKS</CardTitle>
+                <CardTitle className="text-sm font-medium text-cyan-300 font-mono">ACTIVE WORKLOAD</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
                 <div className="text-5xl font-bold text-white">{tasks.length}</div>
                 <div className="space-y-2">
-                  <p className="text-xs text-cyan-400/80 font-medium">By Status</p>
+                  <p className="text-xs text-cyan-400/80 font-medium">Status Check</p>
                   <div className="flex gap-2 text-xs">
                     <span className="px-2 py-1 bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 rounded">
                       {completedTasks} Done
@@ -148,20 +149,20 @@ export function DashboardHome({ tasks = [], events = [], notes = [] }: HomeProps
             {/* Today's Events - DEEP ROSE/PINK GRADIENT */}
             <Card className="border border-white/20 bg-gradient-to-br from-[#1a0a1a] to-[#020617] hover:from-[#2a1a2a] transition-colors shadow-xl">
               <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium text-pink-300 font-mono">TODAY'S EVENTS</CardTitle>
+                <CardTitle className="text-sm font-medium text-pink-300 font-mono">DAILY AGENDA</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
                 <div className="text-5xl font-bold text-white">{todayEvents.length}</div>
                 <div className="space-y-2">
-                  <p className="text-xs text-pink-400/80 font-medium">Time Slots</p>
+                  <p className="text-xs text-pink-400/80 font-medium">Up Next</p>
                   <div className="text-xs text-pink-400/70 space-y-1">
                     {todayEvents.length > 0 ? (
                       <>
-                        <div>Next: {format(new Date(todayEvents[0].date), "h:mm a")}</div>
-                        <div className="text-pink-300">{todayEvents[0].title}</div>
+                        <div>{format(new Date(todayEvents[0].date), "h:mm a")}</div>
+                        <div className="text-pink-300 truncate">{todayEvents[0].title}</div>
                       </>
                     ) : (
-                      <div>No events scheduled</div>
+                      <div className="italic opacity-80">Clear schedule today</div>
                     )}
                   </div>
                 </div>
@@ -172,7 +173,7 @@ export function DashboardHome({ tasks = [], events = [], notes = [] }: HomeProps
           {/* Monthly Progress - DEEP CYAN/BLUE GRADIENT */}
           <Card className="border border-white/20 bg-gradient-to-br from-[#083344] to-[#020617] shadow-xl h-[180px] flex flex-col justify-center">
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-sky-400 font-mono">MONTHLY TARGET</CardTitle>
+              <CardTitle className="text-sm font-medium text-sky-400 font-mono">MONTHLY VELOCITY</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
@@ -193,8 +194,8 @@ export function DashboardHome({ tasks = [], events = [], notes = [] }: HomeProps
           {/* CHART 1: URGENCY - DEEP SLATE GRADIENT */}
           <Card className="border border-white/20 bg-gradient-to-br from-[#0f172a] to-[#020617] shadow-xl flex flex-col h-[360px]">
             <CardHeader className="pb-0">
-              <CardTitle className="text-lg text-white font-medium">Urgency Breakdown</CardTitle>
-              <CardDescription className="text-slate-400 text-sm">Tasks by priority level</CardDescription>
+              <CardTitle className="text-lg text-white font-medium">Priority Matrix</CardTitle>
+              <CardDescription className="text-slate-400 text-sm">Tasks distribution by urgency</CardDescription>
             </CardHeader>
             <CardContent className="flex-1 min-h-[220px] relative flex flex-col items-center justify-center pb-10">
               {/* Center Label */}
@@ -252,8 +253,8 @@ export function DashboardHome({ tasks = [], events = [], notes = [] }: HomeProps
           {/* CHART 2: CATEGORY - DEEP VIOLET GRADIENT */}
           <Card className="border border-white/20 bg-gradient-to-br from-[#2e1065] to-[#020617] shadow-xl flex flex-col h-[360px]">
             <CardHeader className="pb-0">
-              <CardTitle className="text-lg text-white font-medium">Category Split</CardTitle>
-              <CardDescription className="text-slate-400 text-sm">Distribution by type</CardDescription>
+              <CardTitle className="text-lg text-white font-medium">Focus Distribution</CardTitle>
+              <CardDescription className="text-slate-400 text-sm">Where your energy goes</CardDescription>
             </CardHeader>
             <CardContent className="flex-1 min-h-[220px] relative flex flex-col items-center justify-center pb-10">
               {/* Center Label */}
@@ -347,7 +348,10 @@ export function DashboardHome({ tasks = [], events = [], notes = [] }: HomeProps
                   </div>
                 ))
               ) : (
-                <p className="text-sm text-slate-500 italic p-4 text-center">No pending tasks</p>
+                <div className="flex flex-col items-center justify-center py-8 text-slate-500">
+                    <CheckCircle2 className="w-10 h-10 mb-2 opacity-20" />
+                    <p className="text-sm">All caught up! You're crushing it. 🚀</p>
+                </div>
               )}
             </div>
           </CardContent>
@@ -387,7 +391,10 @@ export function DashboardHome({ tasks = [], events = [], notes = [] }: HomeProps
                     </div>
                   ))
               ) : (
-                <p className="text-sm text-slate-500 italic p-4 text-center">No events scheduled</p>
+                <div className="flex flex-col items-center justify-center py-8 text-slate-500">
+                    <CalendarOff className="w-10 h-10 mb-2 opacity-20" />
+                    <p className="text-sm">Clear schedule. Time for deep work? 🧠</p>
+                </div>
               )}
             </div>
           </CardContent>
