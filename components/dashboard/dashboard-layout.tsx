@@ -13,7 +13,7 @@ interface DashboardLayoutProps {
   darkMode: boolean
   setDarkMode: (value: boolean) => void
 }
-//dashboard layout component that wraps the dashboard pages and provides a consistent layout with navigation, profile header, and interactive background. It also handles dark mode toggling and active tab state management.
+//dashboard layout component that wraps the dashboard pages and provides a consistent layout with navigation, profile header, and interactive background. It also handles dark mode toggling and active tab state management
 export function DashboardLayout({ children, activeTab, setActiveTab, darkMode, setDarkMode }: DashboardLayoutProps) {
   const [mounted, setMounted] = useState(false)
 
