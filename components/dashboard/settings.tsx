@@ -31,17 +31,32 @@ function Separator() {
   return <div className="h-[1px] w-full bg-border/50 my-4" />
 }
 
-export function SettingsPage({ darkMode, setDarkMode }: { darkMode: boolean; setDarkMode: (value: boolean) => void }) {
+import { useTheme } from "next-themes"
+
+export function SettingsPage({
+  darkMode,
+  setDarkMode,
+}: {
+  darkMode?: boolean
+  setDarkMode?: (value: boolean) => void
+} = {}) {
   const [username, setUsername] = useLocalStorage("user-name", "Josiah Lamuel")
+  const { theme, setTheme } = useTheme()
+  const isDark = darkMode ?? (theme === "dark")
+  const handleSetDarkMode =
+    setDarkMode ??
+    ((val: boolean) => {
+      setTheme(val ? "dark" : "light")
+    })
 
   // Apply dark mode
   useEffect(() => {
-    if (darkMode) {
+    if (isDark) {
       document.documentElement.classList.add("dark")
     } else {
       document.documentElement.classList.remove("dark")
     }
-  }, [darkMode])
+  }, [isDark])
 
   const handleClearData = () => {
     if (confirm("Are you sure? This will reset your links and notes.")) {
@@ -77,7 +92,7 @@ export function SettingsPage({ darkMode, setDarkMode }: { darkMode: boolean; set
               </div>
               <div className="flex items-center gap-2">
                 <Sun className="h-4 w-4 text-muted-foreground" />
-                <Switch checked={darkMode} onCheckedChange={setDarkMode} />
+                <Switch checked={isDark} onCheckedChange={handleSetDarkMode} />
                 <Moon className="h-4 w-4 text-muted-foreground" />
               </div>
             </div>
