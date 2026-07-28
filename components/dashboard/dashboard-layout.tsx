@@ -6,16 +6,21 @@ import { Navigation } from "./navigation"
 import { ProfileHeader } from "./profile-header"
 import { InteractiveBackground } from "./interactive-background"
 
+import { useTheme } from "next-themes"
+
 interface DashboardLayoutProps {
   children: ReactNode
   activeTab: string
   setActiveTab: (tab: string) => void
-  darkMode: boolean
-  setDarkMode: (value: boolean) => void
+  darkMode?: boolean
+  setDarkMode?: (value: boolean) => void
 }
-//dashboard layout component that wraps the dashboard pages and provides a consistent layout with navigation, profile header, and interactive background. It also handles dark mode toggling and active tab state management
+
 export function DashboardLayout({ children, activeTab, setActiveTab, darkMode, setDarkMode }: DashboardLayoutProps) {
   const [mounted, setMounted] = useState(false)
+  const { theme } = useTheme()
+  const isDark = darkMode ?? (theme === "dark")
+  const handleSetDarkMode = setDarkMode ?? (() => {})
 
   useEffect(() => {
     setMounted(true)
@@ -25,15 +30,15 @@ export function DashboardLayout({ children, activeTab, setActiveTab, darkMode, s
 
   return (
     <div
-      className={`min-h-screen bg-transparent text-foreground relative flex flex-col overflow-hidden ${darkMode ? "dark" : ""}`}
+      className={`min-h-screen bg-transparent text-foreground relative flex flex-col overflow-x-hidden ${isDark ? "dark" : ""}`}
     >
-      <InteractiveBackground darkMode={darkMode} />
+      <InteractiveBackground darkMode={isDark} />
 
-      <ProfileHeader darkMode={darkMode} setDarkMode={setDarkMode} activeTab={activeTab} />
+      <ProfileHeader darkMode={isDark} setDarkMode={handleSetDarkMode} activeTab={activeTab} />
 
       <Navigation activeTab={activeTab} setActiveTab={setActiveTab} />
 
-      <main className="flex-1 p-6 md:p-8 relative z-10 animate-in fade-in duration-500 overflow-y-auto max-h-[calc(100vh-160px)]">
+      <main className="flex-1 p-6 md:p-8 relative z-10 animate-in fade-in duration-500">
         <div className="max-w-7xl mx-auto">{children}</div>
       </main>
     </div>

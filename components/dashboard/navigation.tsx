@@ -23,26 +23,28 @@ export function Navigation({ activeTab, setActiveTab }: NavigationProps) {
   ]
 
   return (
-    <nav className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-40 glow-card">
-      <div className="max-w-7xl mx-auto px-6 md:px-8 py-4">
+    <nav className="border-b border-border bg-card/90 backdrop-blur-md sticky top-[57px] z-20 shadow-sm">
+      <div className="max-w-7xl mx-auto px-6 md:px-8 py-3">
         <div className="flex items-center justify-between">
-          <div className="text-xl font-bold bg-gradient-to-r from-orange-400 to-orange-600 bg-clip-text text-transparent">
+          <div className="text-lg font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-orange-500 dark:from-blue-400 dark:via-purple-400 dark:to-orange-400 bg-clip-text text-transparent">
             Productivity Hub
           </div>
 
-          <button className="md:hidden p-2" onClick={() => setIsOpen(!isOpen)}>
+          <button className="md:hidden p-2 text-foreground" onClick={() => setIsOpen(!isOpen)}>
             <Menu className="w-5 h-5" />
           </button>
 
-          <div className="hidden md:flex gap-2">
+          <div className="hidden md:flex gap-1.5">
             {navItems.map((item) => {
               const Icon = item.icon
               return (
                 <Button
                   key={item.id}
                   variant={activeTab === item.id ? "default" : "ghost"}
-                  className={`gap-2 transition-all ${
-                    activeTab === item.id ? "glow-accent text-white dark:text-white" : "hover:glow-card"
+                  className={`gap-2 transition-all text-sm font-medium ${
+                    activeTab === item.id
+                      ? "bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-sm hover:opacity-95"
+                      : "text-muted-foreground hover:text-foreground hover:bg-secondary/70"
                   }`}
                   onClick={() => setActiveTab(item.id)}
                 >

@@ -13,9 +13,9 @@ import { useLocalStorage } from "@/hooks/use-local-storage"
 
 export default function Page() {
   const [activeTab, setActiveTab] = useState("home")
-  const [tasks, setTasks] = useLocalStorage("tasks", [])
-  const [notes, setNotes] = useLocalStorage("notes", [])
-  const [events, setEvents] = useLocalStorage("events", [])
+  const [tasks, setTasks] = useLocalStorage<any[]>("tasks", [])
+  const [notes, setNotes] = useLocalStorage<any[]>("notes", [])
+  const [events, setEvents] = useLocalStorage<any[]>("events", [])
 
   const renderContent = () => {
     switch (activeTab) {
