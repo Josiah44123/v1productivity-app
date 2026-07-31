@@ -90,7 +90,7 @@ export function ProgressTracker({ tasks = [] }: ProgressTrackerProps) {
       <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 border-b border-border pb-3">
         <div>
           <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-amber-600 dark:from-blue-400 dark:via-purple-400 dark:to-amber-400 bg-clip-text text-transparent">
-            Progress &amp; Reflection Tracker
+            3rd Year • 1st Sem Progress
           </h1>
           <p className="text-sm text-muted-foreground mt-1">
             Track your checklist completion across Acads, Org, and Work &amp; reflect on weekly wins
@@ -111,7 +111,7 @@ export function ProgressTracker({ tasks = [] }: ProgressTrackerProps) {
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle className="text-lg font-bold text-foreground">Overall Semester Progress</CardTitle>
+              <CardTitle className="text-lg font-bold text-foreground">3rd Year • 1st Sem Overall Progress</CardTitle>
               <CardDescription className="text-xs">All tasks &amp; checklists combined</CardDescription>
             </div>
             <span className="text-2xl font-black bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">

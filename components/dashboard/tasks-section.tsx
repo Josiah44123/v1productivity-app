@@ -58,6 +58,10 @@ export function TasksSection({ tasks = [], setTasks }: TasksSectionProps) {
   const [columnInputs, setColumnInputs] = useState<Record<string, string>>({})
   const [expandedTasks, setExpandedTasks] = useState<Set<string>>(new Set())
 
+  // Drag and Drop state
+  const [draggedTaskId, setDraggedTaskId] = useState<string | null>(null)
+  const [dragOverColId, setDragOverColId] = useState<string | null>(null)
+
   // Ensure every task is assigned to a column
   const getTaskColumnId = (task: Task): string => {
     if (task.columnId && columns.some((c) => c.id === task.columnId)) {
@@ -383,14 +387,14 @@ export function TasksSection({ tasks = [], setTasks }: TasksSectionProps) {
         <div>
           <div className="flex items-center gap-2">
             <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-amber-600 dark:from-blue-400 dark:via-purple-400 dark:to-amber-400 bg-clip-text text-transparent">
-              My Day &amp; Columns
+              3rd Year • 1st Sem Tasks
             </h1>
             <span className="text-xs px-2.5 py-0.5 rounded-full bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-300 font-semibold border border-blue-200 dark:border-blue-800">
               Acads • Org • Work
             </span>
           </div>
           <p className="text-sm text-muted-foreground mt-1">
-            {format(new Date(), "EEEE, MMMM d")} • Independent columns with checklist progress &amp; weekly reflection
+            {format(new Date(), "EEEE, MMMM d")} • Drag tasks between columns or use the Move menu
           </p>
         </div>
 
@@ -470,7 +474,22 @@ export function TasksSection({ tasks = [], setTasks }: TasksSectionProps) {
             return (
               <div
                 key={col.id}
-                className={`flex flex-col rounded-2xl bg-card border border-border shadow-sm transition-shadow hover:shadow-md overflow-hidden ${styles.borderTop}`}
+                onDragOver={(e) => {
+                  e.preventDefault()
+                  setDragOverColId(col.id)
+                }}
+                onDragLeave={() => setDragOverColId(null)}
+                onDrop={(e) => {
+                  e.preventDefault()
+                  setDragOverColId(null)
+                  const id = e.dataTransfer.getData("text/plain") || draggedTaskId
+                  if (id) moveTaskToColumn(id, col.id)
+                }}
+                className={`flex flex-col rounded-2xl bg-card border shadow-sm transition-all overflow-hidden ${styles.borderTop} ${
+                  dragOverColId === col.id
+                    ? "border-blue-500 ring-2 ring-blue-500 bg-blue-50/20 dark:bg-blue-950/20 scale-[1.01]"
+                    : "border-border hover:shadow-md"
+                }`}
               >
                 {/* Column Header */}
                 <div className="p-4 border-b border-border bg-card/60">
@@ -588,13 +607,22 @@ export function TasksSection({ tasks = [], setTasks }: TasksSectionProps) {
                         return (
                           <div
                             key={task.id}
-                            className={`group rounded-xl border border-border bg-card p-3 shadow-2xs transition-all ${styles.cardBorderHover} ${
+                            draggable
+                            onDragStart={(e) => {
+                              setDraggedTaskId(task.id)
+                              e.dataTransfer.setData("text/plain", task.id)
+                            }}
+                            onDragEnd={() => setDraggedTaskId(null)}
+                            className={`group rounded-xl border border-border bg-card p-3 shadow-2xs transition-all cursor-grab active:cursor-grabbing ${styles.cardBorderHover} ${
                               task.completed ? "opacity-60 bg-secondary/20" : "hover:shadow-sm"
-                            }`}
+                            } ${draggedTaskId === task.id ? "opacity-40 scale-95 border-dashed" : ""}`}
                           >
                             {/* Task Top Bar */}
                             <div className="flex items-start justify-between gap-2">
-                              <div className="flex items-start gap-2.5 flex-1 min-w-0">
+                              <div className="flex items-start gap-2 flex-1 min-w-0">
+                                <div className="mt-1 text-muted-foreground/40 group-hover:text-muted-foreground cursor-grab shrink-0" title="Drag to move column">
+                                  <GripVertical className="w-4 h-4" />
+                                </div>
                                 <button
                                   onClick={() => toggleTask(task.id)}
                                   className="mt-0.5 text-muted-foreground hover:text-blue-600 transition-colors shrink-0"
