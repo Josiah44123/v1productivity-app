@@ -399,7 +399,7 @@ export function CalendarSection({ events = [], setEvents }: CalendarSectionProps
             </CardContent>
         </Card>
 
-        {/* --- SIDEBAR: UPCOMING EVENTS (Spans 1 col) --- */}
+        {}
         <div className="xl:col-span-1 space-y-4 h-[700px] flex flex-col">
             <Card className="glow-accent border-blue-glow h-full flex flex-col">
                 <CardHeader>
