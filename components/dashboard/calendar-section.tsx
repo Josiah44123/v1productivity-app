@@ -353,7 +353,7 @@ export function CalendarSection({ events = [], setEvents }: CalendarSectionProps
                     </div>
                 )}
 
-                {/* MONTH VIEW - UPDATED with Colors & Animation */}
+                {/* MONTH VIEW - UPDATED */}
                 {viewMode === 'month' && (
                     <div className="p-4 grid grid-cols-7 gap-3 h-full overflow-y-auto">
                         {daysInView.map(day => {
