@@ -124,7 +124,7 @@
 }
 
 @layer components {
-  /* Added smooth fade-in animation for page transitions */
+  
 
   * {
     @apply border-border;
