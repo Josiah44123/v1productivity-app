@@ -134,7 +134,7 @@
     @apply bg-background text-foreground;
   }
 
-  /* Solid, crisp card styles for readable light mode and sleek dark mode */
+  
   .glow-card {
     background: var(--card);
     border-color: var(--border);
