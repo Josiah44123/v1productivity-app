@@ -33,7 +33,7 @@ export function DashboardLayout({ children, activeTab, setActiveTab, darkMode, s
     <div
       className={`min-h-screen bg-white text-slate-900 transition-colors duration-300 flex flex-col md:flex-row overflow-x-hidden ${isDark ? "dark bg-slate-950 text-slate-100" : ""}`}
     >
-      {/* Sidebar Navigation */}
+      {/* Navigation Sidebar */}
       <aside 
         className={`flex-shrink-0 border-b md:border-b-0 md:border-r border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 flex flex-col z-20 transition-all duration-300 ease-in-out relative ${
           isCollapsed ? "w-full md:w-20" : "w-full md:w-64"
