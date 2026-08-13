@@ -37,6 +37,7 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode
 }>) {
+  // The root layout wrapping the entire application
   return (
     <html lang="en" suppressHydrationWarning>
       <body className="font-sans antialiased bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100">
