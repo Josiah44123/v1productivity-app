@@ -13,6 +13,7 @@ import { ProgressTracker } from "@/components/dashboard/progress-tracker"
 import { SettingsPage } from "@/components/dashboard/settings"
 import { getTasks } from "@/app/actions"
 
+// Main landing page and authentication router
 export default function Page() {
   const { data: session, status } = useSession()
   const router = useRouter()
