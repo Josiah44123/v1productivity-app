@@ -38,7 +38,7 @@ export function DashboardHome({ tasks = [], events = [], notes = [] }: HomeProps
           {getGreeting()}, <span className="text-blue-600 dark:text-blue-400">{name}</span>
         </h1>
         <p className="text-gray-500 dark:text-gray-400 mt-1">
-          Here is an overview of your productivity today.
+          Here is an overview of your productivity for today.
         </p>
       </div>
 
