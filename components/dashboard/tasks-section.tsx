@@ -56,7 +56,7 @@ export function TasksSection({ tasks, refreshTasks }: { tasks: any[], refreshTas
           <Input 
             value={newTaskTitle}
             onChange={e => setNewTaskTitle(e.target.value)}
-            placeholder="What needs to be done?" 
+            placeholder="What needs to be done today?" 
             className="flex-1"
           />
           <select 
