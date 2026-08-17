@@ -107,7 +107,7 @@ export function TasksSection({ tasks, refreshTasks }: { tasks: any[], refreshTas
 
         {tasks.length === 0 && (
           <div className="text-center py-12 text-gray-500 border-2 border-dashed border-gray-200 dark:border-gray-800 rounded-xl">
-            No tasks yet. Add one above!
+            No pending tasks. Add one above!
           </div>
         )}
       </div>
