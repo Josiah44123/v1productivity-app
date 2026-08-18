@@ -88,7 +88,7 @@ export function PomodoroTimer({ isCollapsed }: PomodoroTimerProps) {
               : "text-gray-500 hover:text-gray-900 dark:hover:text-white"
           }`}
         >
-          Work
+          Focus
         </button>
         <button
           onClick={() => switchMode("break")}
