@@ -15,7 +15,7 @@ export function Navigation({ activeTab, setActiveTab, isCollapsed }: NavigationP
     { id: "tasks", label: "Tasks", icon: CheckSquare2 },
     { id: "calendar", label: "Calendar", icon: Calendar },
     { id: "notes", label: "Notes", icon: BookOpen },
-    { id: "links", label: "Quick Links", icon: Link2 },
+    { id: "links", label: "Links", icon: Link2 },
     { id: "progress", label: "Progress", icon: TrendingUp },
     { id: "settings", label: "Settings", icon: Settings },
   ]
