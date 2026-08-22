@@ -88,7 +88,7 @@ export function ProfileHeader({ darkMode, setDarkMode, isCollapsed }: ProfileHea
           href="https://josiahrosell.vercel.app"
           target="_blank"
           rel="noopener noreferrer"
-          className="text-xs px-2 py-1 rounded bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 transition-colors"
+          className="text-xs px-2 py-1 rounded bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 transition-all hover:scale-105"
         >
           Portfolio
         </a>
