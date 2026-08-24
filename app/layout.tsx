@@ -10,8 +10,8 @@ const _geist = Geist({ subsets: ["latin"] })
 const _geistMono = Geist_Mono({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "Productivity Hub - All-in-One Dashboard",
-  description: "Manage tasks, calendar, notes, and quick links all in one place",
+  title: "Productivity Hub",
+  description: "A centralized dashboard to manage your tasks, events, and notes.",
   generator: "v0.app",
   icons: {
     icon: [
