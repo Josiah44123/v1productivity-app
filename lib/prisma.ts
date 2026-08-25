@@ -8,6 +8,7 @@ declare global {
   var prismaGlobal: undefined | ReturnType<typeof prismaClientSingleton>
 }
 
+// Instantiate a singleton Prisma Client to prevent multiple instances in development
 const prisma = globalThis.prismaGlobal ?? prismaClientSingleton()
 
 export default prisma
