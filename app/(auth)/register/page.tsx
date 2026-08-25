@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { Sparkles, CheckCircle2, XCircle } from "lucide-react"
 
+// The registration page handles new user account creation and validation
 export default function RegisterPage() {
   const router = useRouter()
   const [name, setName] = useState("")
