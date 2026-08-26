@@ -10,7 +10,8 @@ async function getSession() {
   return await getServerSession(authOptions)
 }
 
-// Tasks
+// --- Task Server Actions ---
+// These actions handle secure database operations for the Tasks section
 export async function getTasks() {
   const session = await getSession()
   if (!session?.user?.id) return []
