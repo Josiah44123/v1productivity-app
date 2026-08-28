@@ -2,6 +2,7 @@ import { NextResponse } from "next/server"
 import prisma from "@/lib/prisma"
 import bcrypt from "bcrypt"
 
+// POST endpoint for user registration
 export async function POST(req: Request) {
   try {
     const { email, password, name } = await req.json()
