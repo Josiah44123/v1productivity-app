@@ -1,6 +1,8 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import { useSession } from "next-auth/react"
+import { useRouter } from "next/navigation"
 import { DashboardLayout } from "@/components/dashboard/dashboard-layout"
 import { DashboardHome } from "@/components/dashboard/home"
 import { TasksSection } from "@/components/dashboard/tasks-section"
@@ -9,20 +11,46 @@ import { NotesSection } from "@/components/dashboard/notes-section"
 import { LinksHub } from "@/components/dashboard/links-hub"
 import { ProgressTracker } from "@/components/dashboard/progress-tracker"
 import { SettingsPage } from "@/components/dashboard/settings"
-import { useLocalStorage } from "@/hooks/use-local-storage"
+import { getTasks } from "@/app/actions"
 
 export default function Page() {
+  const { data: session, status } = useSession()
+  const router = useRouter()
+  
   const [activeTab, setActiveTab] = useState("home")
-  const [tasks, setTasks] = useLocalStorage<any[]>("tasks", [])
-  const [notes, setNotes] = useLocalStorage<any[]>("notes", [])
-  const [events, setEvents] = useLocalStorage<any[]>("events", [])
+  const [tasks, setTasks] = useState<any[]>([])
+  
+  // Dummy data for unimplemented features
+  const [notes, setNotes] = useState<any[]>([])
+  const [events, setEvents] = useState<any[]>([])
+
+  useEffect(() => {
+    if (status === "unauthenticated") {
+      router.push("/login")
+    } else if (status === "authenticated") {
+      loadData()
+    }
+  }, [status, router])
+
+  const loadData = async () => {
+    try {
+      const dbTasks = await getTasks()
+      setTasks(dbTasks)
+    } catch (e) {
+      console.error(e)
+    }
+  }
+
+  if (status === "loading" || status === "unauthenticated") {
+    return <div className="min-h-screen flex items-center justify-center bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100">Loading...</div>
+  }
 
   const renderContent = () => {
     switch (activeTab) {
       case "home":
         return <DashboardHome tasks={tasks} events={events} notes={notes} />
       case "tasks":
-        return <TasksSection tasks={tasks} setTasks={setTasks} />
+        return <TasksSection tasks={tasks} setTasks={setTasks} refreshTasks={loadData} />
       case "calendar":
         return <CalendarSection events={events} setEvents={setEvents} />
       case "notes":

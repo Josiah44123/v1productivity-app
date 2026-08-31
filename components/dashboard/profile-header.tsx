@@ -1,17 +1,16 @@
 "use client"
 
 import { Github, Linkedin, Twitter, Sun, Moon } from "lucide-react"
-import { MiniGame } from "./mini-game"
 import { useLocalStorage } from "@/hooks/use-local-storage"
 import { useTheme } from "next-themes"
 
 interface ProfileHeaderProps {
   darkMode: boolean
   setDarkMode: (value: boolean) => void
-  activeTab?: string
+  isCollapsed?: boolean
 }
 
-export function ProfileHeader({ darkMode, setDarkMode, activeTab }: ProfileHeaderProps) {
+export function ProfileHeader({ darkMode, setDarkMode, isCollapsed }: ProfileHeaderProps) {
   const [username] = useLocalStorage("user-name", "Josiah Rosell")
   const { theme, setTheme } = useTheme()
 
@@ -30,68 +29,79 @@ export function ProfileHeader({ darkMode, setDarkMode, activeTab }: ProfileHeade
     setDarkMode(nextIsDark)
   }
 
-  return (
-    <div className="border-b border-border bg-card/80 backdrop-blur-md sticky top-0 z-30 relative shadow-sm">
-      <div className="max-w-7xl mx-auto px-6 md:px-8 py-3">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-6 flex-1">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 via-purple-500 to-orange-500 p-0.5 shadow-sm">
-                <div className="w-full h-full rounded-full bg-card flex items-center justify-center">
-                  <span className="text-xs font-bold bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent">
-                    {initials}
-                  </span>
-                </div>
-              </div>
-              <div>
-                <h2 className="font-semibold text-sm text-foreground">{username}</h2>
-                <p className="text-xs text-muted-foreground">2025 Semester</p>
-              </div>
-            </div>
-
-            <div className="hidden md:flex items-center gap-3">
-              <a
-                href="https://josiahrosell.vercel.app"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-xs px-3 py-1 rounded-full bg-card border border-border hover:border-blue-500/50 hover:shadow-sm transition-all"
-              >
-                Portfolio
-              </a>
-              <a href="#" className="p-1 hover:bg-muted rounded transition-colors">
-                <Github className="w-4 h-4 text-muted-foreground hover:text-foreground" />
-              </a>
-              <a href="#" className="p-1 hover:bg-muted rounded transition-colors">
-                <Linkedin className="w-4 h-4 text-muted-foreground hover:text-blue-600" />
-              </a>
-              <a href="#" className="p-1 hover:bg-muted rounded transition-colors">
-                <Twitter className="w-4 h-4 text-muted-foreground hover:text-blue-400" />
-              </a>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-3">
-            <button
-              onClick={toggleTheme}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-secondary/80 hover:bg-secondary border border-border text-xs font-medium text-foreground transition-all shadow-sm"
-              title="Toggle Light/Dark Mode"
-            >
-              {theme === "dark" ? (
-                <>
-                  <Sun className="w-3.5 h-3.5 text-amber-400" />
-                  <span className="hidden sm:inline">Light Mode</span>
-                </>
-              ) : (
-                <>
-                  <Moon className="w-3.5 h-3.5 text-blue-600" />
-                  <span className="hidden sm:inline">Dark Mode</span>
-                </>
-              )}
-            </button>
-            <MiniGame activeTab={activeTab} />
+  if (isCollapsed) {
+    return (
+      <div className="flex flex-col items-center gap-6 relative z-30 w-full">
+        <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-blue-500 to-purple-500 p-0.5 flex flex-shrink-0 items-center justify-center">
+          <div className="w-full h-full rounded-full bg-white dark:bg-gray-900 flex items-center justify-center">
+            <span className="text-sm font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+              {initials}
+            </span>
           </div>
         </div>
+        <button
+          onClick={toggleTheme}
+          className="p-2 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 hover:text-blue-600 transition-colors"
+          title="Toggle Theme"
+        >
+          {theme === "dark" ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+        </button>
+      </div>
+    )
+  }
+
+  return (
+    <div className="flex flex-col gap-4 relative z-30 w-full animate-in fade-in">
+      <div className="flex items-center justify-between">
+        <div className="text-lg font-black bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+          Productivity Hub
+        </div>
+        <button
+          onClick={toggleTheme}
+          className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-800 text-gray-500 dark:text-gray-400 transition-colors"
+          title="Toggle Theme"
+        >
+          {theme === "dark" ? (
+            <Sun className="w-4 h-4" />
+          ) : (
+            <Moon className="w-4 h-4" />
+          )}
+        </button>
+      </div>
+      
+      <div className="flex items-center gap-3">
+        <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-blue-500 to-purple-500 p-0.5 flex flex-shrink-0 items-center justify-center shadow-sm">
+          <div className="w-full h-full rounded-full bg-white dark:bg-gray-900 flex items-center justify-center">
+            <span className="text-sm font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+              {initials}
+            </span>
+          </div>
+        </div>
+        <div className="min-w-0">
+          <h2 className="font-semibold text-sm text-gray-900 dark:text-white truncate">{username}</h2>
+          <p className="text-xs text-gray-500 dark:text-gray-400 truncate">Student</p>
+        </div>
+      </div>
+      
+      <div className="flex items-center gap-2 pt-2 border-t border-gray-200 dark:border-gray-800">
+        <a
+          href="https://josiahrosell.vercel.app"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-xs px-2 py-1 rounded bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 transition-colors"
+        >
+          Portfolio
+        </a>
+        <a href="#" className="p-1 text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors">
+          <Github className="w-4 h-4" />
+        </a>
+        <a href="#" className="p-1 text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+          <Linkedin className="w-4 h-4" />
+        </a>
+        <a href="#" className="p-1 text-gray-400 hover:text-blue-400 dark:hover:text-blue-400 transition-colors">
+          <Twitter className="w-4 h-4" />
+        </a>
       </div>
     </div>
   )
-}
+}
